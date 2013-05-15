@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
-  <multiClasses name="Itest" sourcePath="/mxn/home/vinhar/projects/dev-maxiv-itest/src" description="Itest PowerSupply" filestogenerate="XMI   file,Code files,Makefile">
-    <classes classname="Itest2811Controller" sourcePath="/mxn/home/vinhar/projects/dev-maxiv-itest/src">
-      <inheritances classname="Device_4Impl" sourcePath=""/>
-    </classes>
-    <preferences makefileHome="/usr/local/share/pogo/preferences"/>
-  </multiClasses>
-</pogoDsl:PogoSystem>

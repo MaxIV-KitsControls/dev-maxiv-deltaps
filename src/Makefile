@@ -27,7 +27,7 @@ MAKE_ENV = /usr/local/share/pogo/preferences
 #=============================================================================
 # PACKAGE_NAME is the name of the library/device/exe you want to build
 #
-PACKAGE_NAME = Itest2811Channel
+PACKAGE_NAME = DeltaController
 MAJOR_VERS   = 1
 MINOR_VERS   = 0
 RELEASE      = Release_$(MAJOR_VERS)_$(MINOR_VERS)
@@ -66,7 +66,7 @@ OUTPUT_DIR = ./bin/$(BIN_DIR)
 #   - '-I ../include' and '-I .' are automatically appended in all cases
 #
 #
-INC_DIR_USER= -I . -I ../../lib-itest-magnet2811/src
+INC_DIR_USER= -I . -I ../../lib-maxiv-deltaps/src
 
 
 #=============================================================================
@@ -74,7 +74,7 @@ INC_DIR_USER= -I . -I ../../lib-itest-magnet2811/src
 #   - for a device server, tango libraries directories are automatically appended
 #   - '-L ../lib' is automatically appended in all cases
 #
-LIB_DIR_USER=-L ../../lib-itest-magnet2811/lib
+LIB_DIR_USER=-L ../../lib-maxiv-deltaps/lib
 
 #=============================================================================
 # LFLAGS_USR is the list of user link flags
@@ -87,7 +87,7 @@ LIB_DIR_USER=-L ../../lib-itest-magnet2811/lib
 # you must use '-lA -lB' in this order as link flags, otherwise you will get
 # 'undefined reference' errors
 #
-LFLAGS_USR+= -lMagnet
+LFLAGS_USR+= -lDeltaPS
 
 
 #=============================================================================

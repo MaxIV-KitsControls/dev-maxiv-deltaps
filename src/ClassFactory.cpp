@@ -1,4 +1,4 @@
-/*----- PROTECTED REGION ID(Itest2811Channel::ClassFactory.cpp) ENABLED START -----*/
+/*----- PROTECTED REGION ID(DeltaController::ClassFactory.cpp) ENABLED START -----*/
 static const char *RcsId = "$Id:  $";
 //=============================================================================
 //
@@ -9,7 +9,7 @@ static const char *RcsId = "$Id:  $";
 //               all class singleton for a device server. It is called
 //               at device server startup.
 //
-// project :     BILT channel interface.
+// project :     BILT multi channel power supply.
 //
 // $Author:  $
 //
@@ -30,20 +30,20 @@ static const char *RcsId = "$Id:  $";
 
 
 #include <tango.h>
-#include <Itest2811ChannelClass.h>
+#include <DeltaControllerClass.h>
 
 //	Add class header files if needed
 
 
 /**
- *	Create Itest2811Channel Class singleton and store it in DServer object.
+ *	Create DeltaController Class singleton and store it in DServer object.
  */
 
 void Tango::DServer::class_factory()
 {
 	//	Add method class init if needed
 	
-	add_class(Itest2811Channel_ns::Itest2811ChannelClass::init("Itest2811Channel"));
+	add_class(DeltaController_ns::DeltaControllerClass::init("DeltaController"));
 }
 
 /*----- PROTECTED REGION END -----*/

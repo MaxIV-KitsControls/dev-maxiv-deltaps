@@ -1,15 +1,15 @@
-/*PROTECTED REGION ID(Itest2811Channel::main.cpp) ENABLED START*/
+/*PROTECTED REGION ID(DeltaController::main.cpp) ENABLED START*/
 static const char *RcsId = "$Id: $";
 //=============================================================================
 //
-// file :        Itest2811Channel.cpp
+// file :        DeltaController.cpp
 //
-// description : C++ source for the Itest2811Channel device server main.
+// description : C++ source for the DeltaController device server main.
 //               The main rule is to initialise (and create) the Tango
 //               system and to create the DServerClass singleton.
 //                The main should be the same for every Tango device server.
 //
-// project :     BILT channel interface.
+// project :     BILT multi channel power supply.
 //
 // $Author:  $
 //
