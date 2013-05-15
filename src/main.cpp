@@ -9,7 +9,7 @@ static const char *RcsId = "$Id: $";
 //               system and to create the DServerClass singleton.
 //                The main should be the same for every Tango device server.
 //
-// project :     BILT multi channel power supply.
+// project :     Delta power supply.
 //
 // $Author:  $
 //

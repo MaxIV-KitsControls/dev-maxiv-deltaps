@@ -7,7 +7,7 @@ static const char *RcsId = "$Id:  $";
 // description : C++ source for the DeltaController and its alowed
 //               methods for commands and attributes
 //
-// project :     BILT multi channel power supply.
+// project :     Delta power supply.
 //
 // $Author:  $
 //

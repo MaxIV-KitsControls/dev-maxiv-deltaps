@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <pogoDsl:PogoSystem xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pogoDsl="http://www.esrf.fr/tango/pogo/PogoDsl">
   <classes name="DeltaController">
-    <description description="Device server to control all groups of Delta power supplies" title="Delta power supply" sourcePath="/mxn/home/mirlin/workspace/dev-maxiv-deltaps/src" language="Cpp" filestogenerate="XMI   file,Code files" hasMandatoryProperty="false" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false">
+    <description description="Device server to control all groups of Delta power supplies" title="Delta power supply" sourcePath="/mxn/home/mirlin/workspace/dev-maxiv-deltaps/src" language="Cpp" filestogenerate="XMI   file,Code files" hasMandatoryProperty="true" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false">
       <inheritances classname="Device_4Impl" sourcePath=""/>
       <identification contact="at maxlab.lu.se - kitscontrol" author="kitscontrol" emailDomain="maxlab.lu.se" classFamily="PowerSupply" siteSpecific="" platform="Unix Like" bus="Ethernet" manufacturer="Delta Elektronika" reference=""/>
       <comments commandsTable="//================================================================&#xA;//&#xA;//  The following table gives the correspondence&#xA;//  between command and method names.&#xA;//&#xA;//  Command name  |  Method name&#xA;//----------------------------------------------------------------&#xA;//  State         |  dev_state&#xA;//  Status        |  dev_status&#xA;//  On            |  on&#xA;//  Off           |  off&#xA;//  Reset         |  reset&#xA;//================================================================"/>
@@ -11,10 +11,9 @@
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
       <DefaultPropValue>0.0.0.0</DefaultPropValue>
     </deviceProperties>
-    <deviceProperties name="GroupNumber" description="Delta power supply group number:&#xA;1 -  ES-series, SM700 series, SM3000 series&#xA;2 - SM800, SM1500, SM6000&#xA;3 - SM3300 series&#xA;4 - Combined power supplies">
+    <deviceProperties name="GroupNumber" mandatory="true" description="Delta power supply group number:&#xA;1 -  ES-series, SM700 series, SM3000 series&#xA;2 - SM800, SM1500, SM6000&#xA;3 - SM3300 series&#xA;4 - Combined power supplies">
       <type xsi:type="pogoDsl:ShortType"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <DefaultPropValue>0</DefaultPropValue>
     </deviceProperties>
     <commands name="State" description="This command gets the device state (stored in its &lt;i>device_state&lt;/i> data member) and returns it to the caller." execMethod="dev_state" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="none.">

@@ -5,7 +5,7 @@
 //
 // description : Include for the DeltaController class.
 //
-// project :     BILT multi channel power supply.
+// project :     Delta power supply.
 //
 // $Author:  $
 //
@@ -31,6 +31,9 @@
 
 #include <tango.h>
 
+//  Communication interface to the power supply
+#include <DeltaPS.h>
+
 /*----- PROTECTED REGION END -----*/
 
 
@@ -55,6 +58,9 @@ class DeltaController : public Tango::Device_4Impl
 	/*----- PROTECTED REGION ID(DeltaController::Data Members) ENABLED START -----*/
 
 	//		Add your own data members
+private:
+    // Object handling ethernet communication to the power supply
+    PSC_ETH::PSC_ETH* powersupply;
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::Data Members
 
@@ -69,6 +75,8 @@ public:		//	IPAddress:	IP Address of Delta power supply controller.
 	//	3 - SM3300 series
 	//	4 - Combined power supplies
 	Tango::DevShort	groupNumber;
+	
+	bool	mandatoryNotDefined;
 	
 //	Attribute data members
 public:
@@ -128,6 +136,10 @@ public:
 	 *	Always executed method before execution command method.
 	 */
 	virtual void always_executed_hook();
+	/**
+	 *	Check if mandatory property has been set
+	 */
+	 void check_mandatory_property(Tango::DbDatum &class_prop, Tango::DbDatum &dev_prop);
 
 
 //	Attribute methods

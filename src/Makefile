@@ -5,7 +5,7 @@
 #
 # description : Makefile to generate a TANGO device server.
 #
-# project :     BILT channel interface
+# project :     Delta power supply
 #
 # $Author:  $
 #
@@ -87,7 +87,7 @@ LIB_DIR_USER=-L ../../lib-maxiv-deltaps/lib
 # you must use '-lA -lB' in this order as link flags, otherwise you will get
 # 'undefined reference' errors
 #
-LFLAGS_USR+= -lDeltaPS
+LFLAGS_USR+= -lDeltaPS -lyat
 
 
 #=============================================================================

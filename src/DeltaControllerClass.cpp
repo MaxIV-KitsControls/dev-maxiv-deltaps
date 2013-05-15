@@ -11,9 +11,9 @@ static const char *HttpServer = "http://www.esrf.eu/computing/cs/tango/tango_doc
 // description : C++ source for the DeltaControllerClass. A singleton
 //               class derived from DeviceClass. It implements the
 //               command list and all properties and methods required
-//               by the «name» once per process.
+//               by the ï¿½nameï¿½ once per process.
 //
-// project :     BILT multi channel power supply.
+// project :     Delta power supply.
 //
 // $Author:  $
 //
@@ -316,9 +316,8 @@ void DeltaControllerClass::set_default_property()
 
 	prop_name = "GroupNumber";
 	prop_desc = "Delta power supply group number:  1 -  ES-series, SM700 series, SM3000 series  2 - SM800, SM1500, SM6000  3 - SM3300 series  4 - Combined power supplies";
-	prop_def  = "0\n";
+	prop_def  = "";
 	vect_data.clear();
-	vect_data.push_back("0");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);

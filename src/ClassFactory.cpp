@@ -9,7 +9,7 @@ static const char *RcsId = "$Id:  $";
 //               all class singleton for a device server. It is called
 //               at device server startup.
 //
-// project :     BILT multi channel power supply.
+// project :     Delta power supply.
 //
 // $Author:  $
 //

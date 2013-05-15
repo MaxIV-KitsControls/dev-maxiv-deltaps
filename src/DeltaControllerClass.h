@@ -9,7 +9,7 @@
 //               It contains all properties and methods which the .
 //               DeltaController requires only once e.g. the commands.
 //
-// project :     BILT multi channel power supply.
+// project :     Delta power supply.
 //
 // $Author:  $
 //
