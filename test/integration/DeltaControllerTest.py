@@ -5,15 +5,15 @@ import time
 import exceptions
 import math
 
-class Itest2811ChannelTestCase(unittest.TestCase):
+class DeltaControllerTestCase(unittest.TestCase):
 
-    POWERSUPPLIES = ( { "DEVICE" : "test/itest/2811-A-1",
-                        "IP" : "192.168.150.107",
-                        "CHANNEL" : 1
+    POWERSUPPLIES = ( { "DEVICE" : "test/delta/SM-66-AR",
+                        "IPAdress" : "192.168.150.107",
+                        "GROUP" : 3
                       }, 
-                      { "DEVICE" : "test/itest/2811-A-2",
-                        "IP" : "192.168.150.101",
-                        "CHANNEL" : 1
+                      { "DEVICE" : "test/delta/ES-030-5",
+                        "IPAdress" : "192.168.150.101",
+                        "GROUPNUMBER" : 1
                       }) 
 
     CURRENT_TOLERANCE = 0.01
@@ -22,8 +22,8 @@ class Itest2811ChannelTestCase(unittest.TestCase):
         print "In method", self._testMethodName
         for ps in self.POWERSUPPLIES:
             proxy = PyTango.DeviceProxy(ps["DEVICE"])
-            proxy.put_property({"IP":ps["IP"]})
-            proxy.put_property({"Channel":ps["CHANNEL"]})
+            proxy.put_property({"IPAdress":ps["IPAdress"]})
+            proxy.put_property({"GroupNumber":ps["GROUPNUMBER"]})
             proxy.init()
             ps["PROXY"]=proxy
 
@@ -51,7 +51,7 @@ class Itest2811ChannelTestCase(unittest.TestCase):
             device = ps["PROXY"]
 
             "when: Set the wrong IP"
-            device.put_property({"IP":"127.0.0.1"}) #hope the device doesn't run on the device itself ;-)
+            device.put_property({"IPAdress":"127.0.0.1"}) #hope the device doesn't run on the device itself ;-)
 
             device.init()
             actual = device.State()
@@ -72,17 +72,17 @@ class Itest2811ChannelTestCase(unittest.TestCase):
         for ps in self.POWERSUPPLIES:
             device = ps["PROXY"]
             
-            "when: Set the wrong Channel"
-            device.put_property({"Channel":-1})
+            "when: Set the wrong GroupNumber"
+            device.put_property({"GroupNumber":-1})
 
             device.init()
             actual = device.State()
 
             "then:"
-            self.assertEquals(expected, actual, "The state is not correctly set in case of a wrong channel number : %s (expected : %s)" % (actual, expected))
+            self.assertEquals(expected, actual, "The state is not correctly set in case of a wrong GroupNumber : %s (expected : %s)" % (actual, expected))
             
-            "when: Restore the good Channel"
-            device.put_property({"Channel":ps["CHANNEL"]})
+            "when: Restore the good GroupNumber"
+            device.put_property({"GroupNumber":ps["GroupNumber"]})
             device.init()
             actual = device.State()
 
@@ -278,7 +278,7 @@ class Itest2811ChannelTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     suiteFew = unittest.TestSuite()
-    suiteFew.addTest(Itest2811ChannelTestCase("testWrongIP"))
+    suiteFew.addTest(DeltaControllerTestCase("testWrongIP"))
     unittest.TextTestRunner(verbosity=2).run(suiteFew)
-    #unittest.TextTestRunner(verbosity=2).run(unittest.makeSuite(Itest2811ChannelTestCase))
+    #unittest.TextTestRunner(verbosity=2).run(unittest.makeSuite(DeltaControllerTestCase))
 
