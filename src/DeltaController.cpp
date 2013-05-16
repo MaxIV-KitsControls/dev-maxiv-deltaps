@@ -128,8 +128,10 @@ void DeltaController::delete_device()
     /*----- PROTECTED REGION ID(DeltaController::delete_device) ENABLED START -----*/
 
     //	Delete device allocated objects
-    delete powersupply;
-
+    if(powersupply > 0)
+    {
+        delete powersupply;
+    }
     powersupply = 0;
     delete attr_Current_read;
     attr_Current_read = 0;
@@ -137,6 +139,8 @@ void DeltaController::delete_device()
     attr_Voltage_read = 0;
     delete attr_Impedance_read;
     attr_Impedance_read = 0;
+    delete attr_Voltage_read;
+    attr_Voltage_read = 0;
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::delete_device
 
@@ -162,6 +166,10 @@ void DeltaController::init_device()
     attr_Current_read = new Tango::DevDouble();
     attr_Voltage_read = new Tango::DevDouble();
     attr_Impedance_read = new Tango::DevDouble();
+    attr_Vlim_read = new Tango::DevDouble();
+
+    this->vlim = 0;
+    this->impedance = 0;
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::init_device_before
 
@@ -181,7 +189,7 @@ void DeltaController::init_device()
         powersupply = new PSC_ETH::PSC_ETH(iPAddress, groupNumber);
         this->set_status("Communication OK");
     }
-    catch (const yat::SocketException &e)
+    catch (const yat::Exception &e)
     {
         std::stringstream message;
         for (unsigned int i = 0; i < e.errors.size(); i++)
@@ -417,6 +425,7 @@ void DeltaController::read_Voltage(Tango::Attribute &attr)
     /*----- PROTECTED REGION ID(DeltaController::read_Voltage) ENABLED START -----*/
 
     //	Set the attribute value
+    *attr_Voltage_read = powersupply->get_measure_voltage();
     attr.set_value(attr_Voltage_read);
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::read_Voltage
@@ -441,7 +450,7 @@ void DeltaController::write_Voltage(Tango::WAttribute &attr)
 
     /*----- PROTECTED REGION ID(DeltaController::write_Voltage) ENABLED START -----*/
 
-
+    powersupply->set_voltage(w_val);
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::write_Voltage
 }
@@ -461,6 +470,7 @@ void DeltaController::read_Impedance(Tango::Attribute &attr)
     DEBUG_STREAM << "DeltaController::read_Impedance(Tango::Attribute &attr) entering... " << endl;
     /*----- PROTECTED REGION ID(DeltaController::read_Impedance) ENABLED START -----*/
 
+    *attr_Impedance_read = this->impedance;
     //	Set the attribute value
     attr.set_value(attr_Impedance_read);
 
@@ -487,7 +497,7 @@ void DeltaController::write_Impedance(Tango::WAttribute &attr)
     /*----- PROTECTED REGION ID(DeltaController::write_Impedance) ENABLED START -----*/
 
 
-
+    this->impedance = w_val;
     /*----- PROTECTED REGION END -----*/ //	DeltaController::write_Impedance
 }
 
@@ -506,7 +516,7 @@ void DeltaController::read_Vlim(Tango::Attribute &attr)
 {
     DEBUG_STREAM << "DeltaController::read_Vlim(Tango::Attribute &attr) entering... " << endl;
     /*----- PROTECTED REGION ID(DeltaController::read_Vlim) ENABLED START -----*/
-
+    *attr_Vlim_read = this->vlim;
     //	Set the attribute value
     attr.set_value(attr_Vlim_read);
 
@@ -532,7 +542,7 @@ void DeltaController::write_Vlim(Tango::WAttribute &attr)
 
     /*----- PROTECTED REGION ID(DeltaController::write_Vlim) ENABLED START -----*/
 
-
+    this->vlim = w_val;
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::write_Vlim
 }
@@ -578,7 +588,42 @@ Tango::DevState DeltaController::dev_state()
     DEBUG_STREAM << "DeltaController::State()  - " << device_name << endl;
     /*----- PROTECTED REGION ID(DeltaController::dev_state) ENABLED START -----*/
 
-    Tango::DevState argout = Tango::UNKNOWN; // replace by your own algorithm
+    Tango::DevState argout = DeviceImpl::dev_state();
+
+    if (Tango::FAULT != argout && Tango::UNKNOWN != argout)
+    {
+        try
+        {
+            if (powersupply->get_output_state() == MAGNET_OFF)
+            {
+                argout = Tango::OFF;
+            }
+            else // it's a boolean if (channel->get_state() == MAGNET_ON) {
+                if (powersupply->is_current_moving())
+            {
+                argout = Tango::MOVING;
+            }
+            else
+            {
+                argout = Tango::ON;
+            }
+        }
+        catch (yat::Exception &e)
+        {
+            std::stringstream message;
+            for (unsigned int i = 0; i < e.errors.size(); i++)
+            {
+                message << e.errors[i].reason << " , " << e.errors[i].desc << " , " << e.errors[i].origin << " , " << e.errors[i].code << std::endl;
+            }
+            argout = Tango::FAULT;
+            this->set_status(message.str());
+        }
+        catch (...)
+        {
+            ERROR_STREAM << "ERRRRRRROR" << std::endl;
+            argout = Tango::UNKNOWN;
+        }
+    }
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::dev_state
 
@@ -617,7 +662,7 @@ Tango::ConstDevString DeltaController::dev_status()
 //--------------------------------------------------------
 /**
  *	Execute the On command:
- *	Description: Turns on power supply.
+ *	Description: Turns on power supply output.
  *
  *	@param argin 
  *	@returns 
@@ -628,9 +673,12 @@ void DeltaController::on()
 {
     DEBUG_STREAM << "DeltaController::On()  - " << device_name << endl;
     /*----- PROTECTED REGION ID(DeltaController::on) ENABLED START -----*/
-
+    // TODO: add status text depending on group
     //	Add your own code
-
+    if (powersupply->get_output_state() == MAGNET_OFF)
+    {
+        powersupply->set_output_state(MAGNET_ON);
+    }
     /*----- PROTECTED REGION END -----*/ //	DeltaController::on
 
 }
@@ -638,7 +686,7 @@ void DeltaController::on()
 //--------------------------------------------------------
 /**
  *	Execute the Off command:
- *	Description: Turns of power supply
+ *	Description: Turns off power supply output.
  *
  *	@param argin 
  *	@returns 
@@ -651,6 +699,11 @@ void DeltaController::off()
     /*----- PROTECTED REGION ID(DeltaController::off) ENABLED START -----*/
 
     //	Add your own code
+    // TODO: add status text depending on group
+    if (powersupply->get_output_state() == MAGNET_ON)
+    {
+        powersupply->set_output_state(MAGNET_OFF);
+    }
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::off
 
@@ -672,6 +725,8 @@ void DeltaController::reset()
     /*----- PROTECTED REGION ID(DeltaController::reset) ENABLED START -----*/
 
     //	Add your own code
+    powersupply->clear_all_err();
+    powersupply->set_current(0.0);
 
     /*----- PROTECTED REGION END -----*/ //	DeltaController::reset
 
@@ -681,276 +736,6 @@ void DeltaController::reset()
 /*----- PROTECTED REGION ID(DeltaController::namespace_ending) ENABLED START -----*/
 
 //	Additional Methods
-// //--------------------------------------------------------
-// /**
-//  *	Execute the SetPoleAcCurrent command:
-//  *	Description: Set the AC current for one Pole.
-//  *	             [0] = pole number, [1] = current
-//  *
-//  *	@param argin [0] = pole number, [1] = current
-//  *	@returns 
-//  */
-// //--------------------------------------------------------
-// void Itest2811Controller::set_pole_ac_current(const Tango::DevVarDoubleArray *argin)
-// {
-// 	DEBUG_STREAM << "Itest2811Controller::SetPoleAcCurrent()  - " << device_name << endl;
-// 	//	Add your own code
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Execute the LocalPoleControl command:
-//  *	Description: Set the AC current for one Pole.
-//  *	             [0] = pole number, [1] = local control true/false
-//  *
-//  *	@param argin [0] = pole number, [1] = local control true/false
-//  *	@returns 
-//  */
-// //--------------------------------------------------------
-// void Itest2811Controller::local_pole_control(const Tango::DevVarShortArray *argin)
-// {
-// 	DEBUG_STREAM << "Itest2811Controller::LocalPoleControl()  - " << device_name << endl;
-// 	//	Add your own code
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Execute the SetPoleCurrent command:
-//  *	Description: Set the current for one Pole.
-//  *	             [0] = pole number, [1] = current
-//  *
-//  *	@param argin [0] = pole number, [1] = current
-//  *	@returns 
-//  */
-// //--------------------------------------------------------
-// void Itest2811Controller::set_pole_current(const Tango::DevVarDoubleArray *argin)
-// {
-// 	DEBUG_STREAM << "Itest2811Controller::SetPoleCurrent()  - " << device_name << endl;
-// 	//	Add your own code
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Execute the EnableAcCurrent command:
-//  *	Description: Enables the dynamic 10kHz AC current settings from the Liberas.
-//  *
-//  *	@param argin 
-//  *	@returns 
-//  */
-// //--------------------------------------------------------
-// void Itest2811Controller::enable_ac_current()
-// {
-// 	DEBUG_STREAM << "Itest2811Controller::EnableAcCurrent()  - " << device_name << endl;
-// 	//	Add your own code
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Execute the DisableAcCurrent command:
-//  *	Description: Disables the dynamic 10kHz AC current settings from the Liberas.
-//  *
-//  *	@param argin 
-//  *	@returns 
-//  */
-// //--------------------------------------------------------
-// void Itest2811Controller::disable_ac_current()
-// {
-// 	DEBUG_STREAM << "Itest2811Controller::DisableAcCurrent()  - " << device_name << endl;
-// 	//	Add your own code
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Execute the SetpointCheck command:
-//  *	Description: Check the given current values against the specified limits.
-//  *
-//  *	@param argin Setpoint values for the Poles
-//  *	@returns true when settings are OK
-//  */
-// //--------------------------------------------------------
-// Tango::DevBoolean Itest2811Controller::setpoint_check(const Tango::DevVarDoubleArray *argin)
-// {
-// 	Tango::DevBoolean argout;
-// 	DEBUG_STREAM << "Itest2811Controller::SetpointCheck()  - " << device_name << endl;
-// 	//	Add your own code
-// 	return argout;
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read Location attribute
-//  *	Description: The pysical location of the power supply in the form:\n<Room: xxx Rack: yyy Number: zzz Channels: 123 or 456>
-//  *
-//  *	Data type:	Tango::DevString
-//  *	Attr type:	Scalar 
-//  */
-// //--------------------------------------------------------
-// void Itest2811Controller::read_Location(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "Itest2811Controller::read_Location(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_Location_read);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read LocalControls attribute
-//  *	Description: Indicated whether the individual channels are in local control mode for the \nAC current control. True = local control activated.
-//  *
-//  *	Data type:	Tango::DevBoolean
-//  *	Attr type:	Spectrum  max = 5
-//  */
-// //--------------------------------------------------------
-// void Itest2811Controller::read_LocalControls(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "Itest2811Controller::read_LocalControls(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_LocalControls_read, 5);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read Currents attribute
-//  *	Description: The measured currents of the three poles.
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_Currents(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_Currents(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_Currents_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read Voltages attribute
-//  *	Description: The measured voltages of the three poles.
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_Voltages(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_Voltages(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_Voltages_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read Impedances attribute
-//  *	Description: Calculated impedances for the three poles.
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_Impedances(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_Impedances(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_Impedances_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read SetCurrentsRMS attribute
-//  *	Description: Statistic when driven by the Libera. One RMS value for every pole\nof the magnet.\nRMS value of the AC setpoint applied on the DAC during the last second.\nX=sqr( (sum(setAC)*sum(setAC)) / n - ((sum(setAC)/n) *(sum(setAC)/n)) )
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_SetCurrentsRMS(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_SetCurrentsRMS(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_SetCurrentsRMS_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read SetCurrentsAverage attribute
-//  *	Description: Statistic when driven by the Libera. One average value for every pole\nof the magnet.\nAverage value of the AC setpoint applied on the DAC during the last second.
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_SetCurrentsAverage(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_SetCurrentsAverage(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_SetCurrentsAverage_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read FramesPerSecond attribute
-//  *	Description: Number of settings applied during the last second
-//  *
-//  *	Data type:	Tango::DevULong
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_FramesPerSecond(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_FramesPerSecond(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_FramesPerSecond_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read ErrorsPerSecond attribute
-//  *	Description: Errors detected during the last second
-//  *
-//  *	Data type:	Tango::DevULong
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_ErrorsPerSecond(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_ErrorsPerSecond(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_ErrorsPerSecond_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read ErrorCounters attribute
-//  *	Description: Statistic when driven by the Libera.\nThe total number of errors since the last reset for the \nthree poles.
-//  *
-//  *	Data type:	Tango::DevULong
-//  *	Attr type:	Spectrum  max = 3
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_ErrorCounters(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_ErrorCounters(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_ErrorCounters_read, 3);
-// }
-
-// //--------------------------------------------------------
-// /**
-//  *	Read Temperatures attribute
-//  *	Description: Temperature measurements for the three poles.
-//  *
-//  *	Data type:	Tango::DevDouble
-//  *	Attr type:	Spectrum  max = 6
-//  */
-// //--------------------------------------------------------
-// void DeltaController::read_Temperatures(Tango::Attribute &attr)
-// {
-// 	DEBUG_STREAM << "DeltaController::read_Temperatures(Tango::Attribute &attr) entering... " << endl;
-// 	//	Set the attribute value
-// 	attr.set_value(attr_Temperatures_read, 6);
-// }
 
 
 /*----- PROTECTED REGION END -----*/ //	DeltaController::namespace_ending

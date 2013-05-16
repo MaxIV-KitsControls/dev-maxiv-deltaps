@@ -8,11 +8,11 @@ import math
 class DeltaControllerTestCase(unittest.TestCase):
 
     POWERSUPPLIES = ( { "DEVICE" : "test/delta/SM-66-AR",
-                        "IPAdress" : "192.168.150.107",
-                        "GROUP" : 3
+                        "IPAddress" : "130.235.94.97",
+                        "GROUPNUMBER" : 3
                       }, 
                       { "DEVICE" : "test/delta/ES-030-5",
-                        "IPAdress" : "192.168.150.101",
+                        "IPAddress" : "130.235.95.232",
                         "GROUPNUMBER" : 1
                       }) 
 
@@ -22,7 +22,7 @@ class DeltaControllerTestCase(unittest.TestCase):
         print "In method", self._testMethodName
         for ps in self.POWERSUPPLIES:
             proxy = PyTango.DeviceProxy(ps["DEVICE"])
-            proxy.put_property({"IPAdress":ps["IPAdress"]})
+            proxy.put_property({"IPAddress":ps["IPAddress"]})
             proxy.put_property({"GroupNumber":ps["GROUPNUMBER"]})
             proxy.init()
             ps["PROXY"]=proxy
@@ -51,7 +51,7 @@ class DeltaControllerTestCase(unittest.TestCase):
             device = ps["PROXY"]
 
             "when: Set the wrong IP"
-            device.put_property({"IPAdress":"127.0.0.1"}) #hope the device doesn't run on the device itself ;-)
+            device.put_property({"IPAddress":"127.0.0.1"}) #hope the device doesn't run on the device itself ;-)
 
             device.init()
             actual = device.State()
@@ -60,14 +60,14 @@ class DeltaControllerTestCase(unittest.TestCase):
             self.assertEquals(expected, actual, "The state is not correctly set after changing the IP address  : %s (expected : %s)" % (actual, expected))
             
             "when: Restore the good IP"
-            device.put_property({"IP":ps["IP"]})
+            device.put_property({"IPAddress":ps["IPAddress"]})
             device.init()
             actual = device.State()
 
             "then:"
             self.assertNotEquals(expected, actual, "Not the expected state after changing with the good properties  : %s (not expected : %s)" % (actual, expected))
 
-    def testWrongChannel(self):
+    def testWrongGroup(self):
         expected = PyTango.DevState.FAULT
         for ps in self.POWERSUPPLIES:
             device = ps["PROXY"]
@@ -278,7 +278,9 @@ class DeltaControllerTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     suiteFew = unittest.TestSuite()
+    suiteFew.addTest(DeltaControllerTestCase("testInit"))
     suiteFew.addTest(DeltaControllerTestCase("testWrongIP"))
+    suiteFew.addTest(DeltaControllerTestCase("testWrongGroup"))
     unittest.TextTestRunner(verbosity=2).run(suiteFew)
     #unittest.TextTestRunner(verbosity=2).run(unittest.makeSuite(DeltaControllerTestCase))
 

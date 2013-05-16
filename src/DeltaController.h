@@ -61,6 +61,7 @@ class DeltaController : public Tango::Device_4Impl
 private:
     // Object handling ethernet communication to the power supply
     PSC_ETH::PSC_ETH* powersupply;
+    double vlim, impedance;
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::Data Members
 

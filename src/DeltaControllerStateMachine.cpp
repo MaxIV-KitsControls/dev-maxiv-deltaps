@@ -198,19 +198,12 @@ bool DeltaController::is_Vlim_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 bool DeltaController::is_On_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	if (	//	Compare device state with not allowed states for command 
-		get_state() == Tango::ON	|| 
-		get_state() == Tango::FAULT	|| 
-		get_state() == Tango::ALARM	|| 
-		get_state() == Tango::UNKNOWN)
-	{
+	//	Not any excluded states for On command.
 
 	/*----- PROTECTED REGION ID(DeltaController::OnStateAllowed) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::OnStateAllowed
 
-		return false;
-	}
 	return true;
 }
 
@@ -223,16 +216,12 @@ bool DeltaController::is_On_allowed(TANGO_UNUSED(const CORBA::Any &any))
 
 bool DeltaController::is_Off_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	if (	//	Compare device state with not allowed states for command 
-		get_state() == Tango::OFF)
-	{
+	//	Not any excluded states for Off command.
 
 	/*----- PROTECTED REGION ID(DeltaController::OffStateAllowed) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::OffStateAllowed
 
-		return false;
-	}
 	return true;
 }
 

@@ -33,7 +33,7 @@
       </argout>
       <status abstract="true" inherited="true" concrete="true" concreteHere="true"/>
     </commands>
-    <commands name="On" description="Turns on power supply." execMethod="on" displayLevel="OPERATOR" polledPeriod="0">
+    <commands name="On" description="Turns on power supply output." execMethod="on" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="">
         <type xsi:type="pogoDsl:VoidType"/>
       </argin>
@@ -41,12 +41,8 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <excludedStates>ON</excludedStates>
-      <excludedStates>FAULT</excludedStates>
-      <excludedStates>ALARM</excludedStates>
-      <excludedStates>UNKNOWN</excludedStates>
     </commands>
-    <commands name="Off" description="Turns of power supply" execMethod="off" displayLevel="OPERATOR" polledPeriod="0">
+    <commands name="Off" description="Turns off power supply output." execMethod="off" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="">
         <type xsi:type="pogoDsl:VoidType"/>
       </argin>
@@ -54,7 +50,6 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <excludedStates>OFF</excludedStates>
     </commands>
     <commands name="Reset" description="Reset faults and alarms" execMethod="reset" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="">
