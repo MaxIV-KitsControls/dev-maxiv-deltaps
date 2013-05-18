@@ -112,6 +112,34 @@ public:
 		{return (static_cast<DeltaController *>(dev))->is_Vlim_allowed(ty);}
 };
 
+//	Attribute MaxCurrent class definition
+class MaxCurrentAttrib: public Tango::Attr
+{
+public:
+	MaxCurrentAttrib():Attr("MaxCurrent",
+	                   Tango::DEV_DOUBLE, Tango::READ) {};
+	~MaxCurrentAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<DeltaController *>(dev))->read_MaxCurrent(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<DeltaController *>(dev))->is_MaxCurrent_allowed(ty);}
+};
+
+//	Attribute MaxVoltage class definition
+class MaxVoltageAttrib: public Tango::Attr
+{
+public:
+	MaxVoltageAttrib():Attr("MaxVoltage",
+	                   Tango::DEV_DOUBLE, Tango::READ) {};
+	~MaxVoltageAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<DeltaController *>(dev))->read_MaxVoltage(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<DeltaController *>(dev))->is_MaxVoltage_allowed(ty);}
+};
+
 
 
 

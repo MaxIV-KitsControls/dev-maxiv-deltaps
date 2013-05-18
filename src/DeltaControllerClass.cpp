@@ -575,7 +575,7 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : Voltage
 	VoltageAttrib	*voltage = new VoltageAttrib();
 	Tango::UserDefaultAttrProp	voltage_prop;
-	voltage_prop.set_description("The measured voltage of the selected pole.");
+	voltage_prop.set_description("The measured voltage of the magnet. \nThe Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current. ");
 	voltage_prop.set_label("Voltage");
 	voltage_prop.set_unit("V");
 	//	standard_unit	not set for	Voltage
@@ -635,7 +635,7 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	vlim_prop;
 	vlim_prop.set_description("Set Vlim to correctly set voltage of combined power supply (group 4)\nIf set current is I, V = Vlim*I*Impedance");
 	vlim_prop.set_label("Vlim");
-	vlim_prop.set_unit("Volt");
+	vlim_prop.set_unit("V");
 	//	standard_unit	not set for	Vlim
 	//	display_unit	not set for	Vlim
 	vlim_prop.set_format("%4.2f");
@@ -658,6 +658,64 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Vlim does not fire data_ready event
 
 	att_list.push_back(vlim);
+	
+	//	Attribute : MaxCurrent
+	MaxCurrentAttrib	*maxcurrent = new MaxCurrentAttrib();
+	Tango::UserDefaultAttrProp	maxcurrent_prop;
+	//	description	not set for	MaxCurrent
+	//	label	not set for	MaxCurrent
+	//	unit	not set for	MaxCurrent
+	//	standard_unit	not set for	MaxCurrent
+	//	display_unit	not set for	MaxCurrent
+	//	format	not set for	MaxCurrent
+	//	max_value	not set for	MaxCurrent
+	//	min_value	not set for	MaxCurrent
+	//	max_alarm	not set for	MaxCurrent
+	//	min_alarm	not set for	MaxCurrent
+	//	max_warning	not set for	MaxCurrent
+	//	min_warning	not set for	MaxCurrent
+	//	delta_t	not set for	MaxCurrent
+	//	delta_val	not set for	MaxCurrent
+
+	maxcurrent->set_default_properties(maxcurrent_prop);
+	maxcurrent->set_polling_period(0);
+	maxcurrent->set_disp_level(Tango::OPERATOR);
+	//	Not memorized
+
+	//	MaxCurrent does not fire change event
+	//	MaxCurrent does not fire archive event
+	//	MaxCurrent does not fire data_ready event
+
+	att_list.push_back(maxcurrent);
+	
+	//	Attribute : MaxVoltage
+	MaxVoltageAttrib	*maxvoltage = new MaxVoltageAttrib();
+	Tango::UserDefaultAttrProp	maxvoltage_prop;
+	//	description	not set for	MaxVoltage
+	//	label	not set for	MaxVoltage
+	//	unit	not set for	MaxVoltage
+	//	standard_unit	not set for	MaxVoltage
+	//	display_unit	not set for	MaxVoltage
+	//	format	not set for	MaxVoltage
+	//	max_value	not set for	MaxVoltage
+	//	min_value	not set for	MaxVoltage
+	//	max_alarm	not set for	MaxVoltage
+	//	min_alarm	not set for	MaxVoltage
+	//	max_warning	not set for	MaxVoltage
+	//	min_warning	not set for	MaxVoltage
+	//	delta_t	not set for	MaxVoltage
+	//	delta_val	not set for	MaxVoltage
+
+	maxvoltage->set_default_properties(maxvoltage_prop);
+	maxvoltage->set_polling_period(0);
+	maxvoltage->set_disp_level(Tango::OPERATOR);
+	//	Not memorized
+
+	//	MaxVoltage does not fire change event
+	//	MaxVoltage does not fire archive event
+	//	MaxVoltage does not fire data_ready event
+
+	att_list.push_back(maxvoltage);
 	
 
 	//	Create a list of static attributes

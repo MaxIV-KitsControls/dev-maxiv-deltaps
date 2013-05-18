@@ -85,6 +85,8 @@ public:
 	Tango::DevDouble	*attr_Voltage_read;
 	Tango::DevDouble	*attr_Impedance_read;
 	Tango::DevDouble	*attr_Vlim_read;
+	Tango::DevDouble	*attr_MaxCurrent_read;
+	Tango::DevDouble	*attr_MaxVoltage_read;
 
 
 
@@ -167,7 +169,8 @@ public:
 
 	/**
 	 *	Voltage attribute related methods.
-	 *	Description: The measured voltage of the selected pole.
+	 *	Description: The measured voltage of the magnet. 
+	 *             The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current. 
 	 *
 	 *	Data type:	Tango::DevDouble
 	 *	Attr type:	Scalar 
@@ -202,6 +205,30 @@ public:
 	virtual void read_Vlim(Tango::Attribute &attr);
 	virtual void write_Vlim(Tango::WAttribute &attr);
 	virtual bool is_Vlim_allowed(Tango::AttReqType type);
+
+
+
+	/**
+	 *	MaxCurrent attribute related methods.
+	 *	Description: 
+	 *
+	 *	Data type:	Tango::DevDouble
+	 *	Attr type:	Scalar 
+	 */
+	virtual void read_MaxCurrent(Tango::Attribute &attr);
+	virtual bool is_MaxCurrent_allowed(Tango::AttReqType type);
+
+
+
+	/**
+	 *	MaxVoltage attribute related methods.
+	 *	Description: 
+	 *
+	 *	Data type:	Tango::DevDouble
+	 *	Attr type:	Scalar 
+	 */
+	virtual void read_MaxVoltage(Tango::Attribute &attr);
+	virtual bool is_MaxVoltage_allowed(Tango::AttReqType type);
 
 
 
