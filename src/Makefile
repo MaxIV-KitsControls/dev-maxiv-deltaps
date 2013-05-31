@@ -23,6 +23,7 @@
 # MAKE_ENV is the path to find common environment to buil project
 #
 MAKE_ENV = /usr/local/share/pogo/preferences
+#MAKE_ENV = /usr/share/pogo/preferences
 
 #=============================================================================
 # PACKAGE_NAME is the name of the library/device/exe you want to build
@@ -66,7 +67,7 @@ OUTPUT_DIR = ./bin/$(BIN_DIR)
 #   - '-I ../include' and '-I .' are automatically appended in all cases
 #
 #
-INC_DIR_USER= -I . -I ../../lib-maxiv-deltaps/src
+INC_DIR_USER= -I . -I ../../lib-maxiv-deltaps/src -I /usr/include/tango
 
 
 #=============================================================================

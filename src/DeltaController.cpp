@@ -187,8 +187,17 @@ void DeltaController::init_device()
     try
     {
         DEBUG_STREAM << "Configure a new power supply with IP " << this->iPAddress << std::endl;
-        powersupply = new PSC_ETH::PSC_ETH(iPAddress, groupNumber);
-        this->set_status("Communication OK");
+        
+        if(this->groupNumber<1 || this->groupNumber>4){
+            this->set_state(Tango::FAULT);
+            this->set_status("Wrong groupNumber");
+            powersupply = new PSC_ETH::PSC_ETH(iPAddress, groupNumber);
+        }
+        else{
+            powersupply = new PSC_ETH::PSC_ETH(iPAddress, groupNumber);
+            this->set_state(Tango::ON);
+            this->set_status("Communication OK");
+        }
     }
     catch (const yat::Exception &e)
     {
@@ -616,7 +625,7 @@ Tango::DevState DeltaController::dev_state()
 
     Tango::DevState argout = DeviceImpl::dev_state();
 
-    if (Tango::FAULT != argout && Tango::UNKNOWN != argout)
+    if (Tango::FAULT != argout && Tango::UNKNOWN != argout && this->groupNumber >= 1 && this->groupNumber <= 4)
     {
         try
         {
@@ -630,8 +639,9 @@ Tango::DevState DeltaController::dev_state()
                 argout = Tango::MOVING;
             }
             else
-            {
-                argout = Tango::ON;
+            {   //Group 1 PS do not have any output on/off function
+                if(this->groupNumber == 1 && this->isDeviceOn!=true) {argout = Tango::OFF;}
+                else{ argout = Tango::ON;} 
             }
         }
         catch (yat::Exception &e)
@@ -703,6 +713,8 @@ void DeltaController::on()
     {
         powersupply->set_output_state(MAGNET_ON);
     }
+    if(this->groupNumber == 1) this->isDeviceOn = true;
+    
     /*----- PROTECTED REGION END -----*/	//	DeltaController::on
 
 }
@@ -728,6 +740,8 @@ void DeltaController::off()
         powersupply->set_output_state(MAGNET_OFF);
     }
 
+    if(this->groupNumber == 1) this->isDeviceOn = false;
+
     /*----- PROTECTED REGION END -----*/	//	DeltaController::off
 
 }
@@ -749,6 +763,7 @@ void DeltaController::reset()
     //	Add your own code
     powersupply->clear_all_err();
     powersupply->set_current(0.0);
+    powersupply->set_voltage(0.0);
 
     /*----- PROTECTED REGION END -----*/	//	DeltaController::reset
 

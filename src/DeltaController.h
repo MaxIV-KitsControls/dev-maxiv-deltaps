@@ -62,6 +62,7 @@ private:
     // Object handling ethernet communication to the power supply
     PSC_ETH::PSC_ETH* powersupply;
     double vlim, impedance;
+    bool isDeviceOn;
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::Data Members
 

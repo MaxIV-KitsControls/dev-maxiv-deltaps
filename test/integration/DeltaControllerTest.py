@@ -7,25 +7,31 @@ import math
 
 class DeltaControllerTestCase(unittest.TestCase):
 
-    POWERSUPPLIES = ( { "DEVICE" : "test/delta/SM-66-AR",
-                        "IPAddress" : "130.235.94.97",
-                        "GROUPNUMBER" : 3
-                      }, 
+    POWERSUPPLIES = [ #{ "DEVICE" : "test/delta/SM-66-AR",
+                       # "IPAddress" : "130.235.94.97",
+                        #"GROUPNUMBER" : 3
+                      #},
+                      { "DEVICE" : "test/delta/SM-15-100",
+                        "IPAddress" : "130.235.95.233",
+                        "GROUPNUMBER" : 2
+                        }, 
                       { "DEVICE" : "test/delta/ES-030-5",
                         "IPAddress" : "130.235.95.232",
                         "GROUPNUMBER" : 1
-                      }) 
+                      }] 
 
     CURRENT_TOLERANCE = 0.01
     
     def setUp(self):
         print "In method", self._testMethodName
         for ps in self.POWERSUPPLIES:
-            proxy = PyTango.DeviceProxy(ps["DEVICE"])
-            proxy.put_property({"IPAddress":ps["IPAddress"]})
-            proxy.put_property({"GroupNumber":ps["GROUPNUMBER"]})
-            proxy.init()
-            ps["PROXY"]=proxy
+        	print ps
+        	proxy = PyTango.DeviceProxy(ps["DEVICE"])
+        	proxy.put_property({"IPAddress":ps["IPAddress"]})
+        	proxy.put_property({"GroupNumber":ps["GROUPNUMBER"]})
+        	proxy.init()
+        	proxy.Voltage = 10.0
+        	ps["PROXY"]=proxy
 
     def tearDown(self):
         for ps in self.POWERSUPPLIES:
@@ -82,7 +88,7 @@ class DeltaControllerTestCase(unittest.TestCase):
             self.assertEquals(expected, actual, "The state is not correctly set in case of a wrong GroupNumber : %s (expected : %s)" % (actual, expected))
             
             "when: Restore the good GroupNumber"
-            device.put_property({"GroupNumber":ps["GroupNumber"]})
+            device.put_property({"GroupNumber":ps["GROUPNUMBER"]})
             device.init()
             actual = device.State()
 
@@ -196,7 +202,8 @@ class DeltaControllerTestCase(unittest.TestCase):
     def testCurrent(self):
         attribute = "Current"
         # Absolute random valuess
-        values = [-2.0, -0.45, 0.0, 1.38, 2.0]
+        #values = [-2.0, -0.45, 0.0, 1.38, 2.0]
+        values = [0.0, 0.45, 1.38, 2.0]
         for ps in self.POWERSUPPLIES:
             device = ps["PROXY"]
             device.On()
@@ -217,34 +224,35 @@ class DeltaControllerTestCase(unittest.TestCase):
                 self.assertRaises(PyTango.DevFailed, lambda : device.write_attribute(attribute, wrong) )
 
 
-    def testVoltageAndImpedance(self):
-        attribute = "Voltage"
-        # Absolute random valuess
-        values = [-2.0, -0.45, 1.38, 2.0]
-        for ps in self.POWERSUPPLIES:
-            device = ps["PROXY"]
-            device.On()
+    #def testVoltageAndImpedance(self):
+    #    attribute = "Voltage"
+    #    # Absolute random valuess
+    #    #values = [-2.0, -0.45, 1.38, 2.0]
+    #    values = [0.45, 1.38, 2.0]
+    #    for ps in self.POWERSUPPLIES:
+    #        device = ps["PROXY"]
+    #        device.On()
             
-            for value in values :
-                "when:"
-                device.Current = value
-                self.waitState(device, PyTango.DevState.MOVING, PyTango.DevState.ON)
+    #        for value in values :
+    #            "when:"
+    #            device.Current = value
+    #            self.waitState(device, PyTango.DevState.MOVING, PyTango.DevState.ON)
 
-                "then:"
-                actual = device.Voltage
-                expected = 0.0
-                self.assertNotEquals(expected, actual, "The voltage (or Impedance) doesn't correspond to the current : %s (NOT expected : %s)" % (actual, expected))
+    #            "then:"
+    #            actual = device.Voltage
+    #            expected = 0.0
+    #            self.assertNotEquals(expected, actual, "The voltage (or Impedance) doesn't correspond to the current : %s (NOT expected : %s)" % (actual, expected))
 
-                actual = device.Impedance
-                expected = 0.0
-                self.assertNotEquals(expected, actual, "The voltage (or Impedance) doesn't correspond to the current : %s (NOT expected : %s)" % (actual, expected))
-                # Considering only the resistance of impedance ?
+    #            actual = device.Impedance
+    #            expected = 0.0
+    #            self.assertNotEquals(expected, actual, "The voltage (or Impedance) doesn't correspond to the current : %s (NOT expected : %s)" % (actual, expected))
+    #            # Considering only the resistance of impedance ?
                
-                actual = device.Voltage
-                expected = device.Impedance * device.Current
+    #            actual = device.Voltage
+    #            expected = device.Impedance * device.Current
 
-                "then:"
-                self.assertMoreOrLessEquals(expected, actual, self.CURRENT_TOLERANCE, "The voltage (or Impedance) doesn't correspond to the current : %s (expected : %s)" % (actual, expected))
+    #            "then:"
+    #            self.assertMoreOrLessEquals(expected, actual, self.CURRENT_TOLERANCE, "The voltage (or Impedance) doesn't correspond to the current : %s (expected : %s)" % (actual, expected))
 
 #Utilities
     def waitState(self, device, running_state, expected_state, timeout=10):
@@ -277,10 +285,15 @@ class DeltaControllerTestCase(unittest.TestCase):
         self.assertTrue( diff<=tolerance, message)
 
 if __name__ == '__main__':
-    suiteFew = unittest.TestSuite()
-    suiteFew.addTest(DeltaControllerTestCase("testInit"))
-    suiteFew.addTest(DeltaControllerTestCase("testWrongIP"))
-    suiteFew.addTest(DeltaControllerTestCase("testWrongGroup"))
-    unittest.TextTestRunner(verbosity=2).run(suiteFew)
-    #unittest.TextTestRunner(verbosity=2).run(unittest.makeSuite(DeltaControllerTestCase))
+    #suiteFew = unittest.TestSuite()
+    #suiteFew.addTest(DeltaControllerTestCase("testInit"))
+    #suiteFew.addTest(DeltaControllerTestCase("testWrongIP"))
+    #suiteFew.addTest(DeltaControllerTestCase("testWrongGroup"))
+    #suiteFew.addTest(DeltaControllerTestCase("testReset"))
+    #suiteFew.addTest(DeltaControllerTestCase("testStateOn"))
+    #suiteFew.addTest(DeltaControllerTestCase("testStateOff"))
+    #suiteFew.addTest(DeltaControllerTestCase("testTwiceOn"))
+    #suiteFew.addTest(DeltaControllerTestCase("testTwiceOff"))
+    #unittest.TextTestRunner(verbosity=2).run(suiteFew)
+    unittest.TextTestRunner(verbosity=2).run(unittest.makeSuite(DeltaControllerTestCase))
 

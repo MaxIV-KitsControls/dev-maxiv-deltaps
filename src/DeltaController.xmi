@@ -41,8 +41,8 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <excludedStates>ON</excludedStates>
       <excludedStates>FAULT</excludedStates>
+      <excludedStates>UNKNOWN</excludedStates>
     </commands>
     <commands name="Off" description="Turns off power supply output." execMethod="off" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="">
@@ -52,8 +52,8 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <excludedStates>OFF</excludedStates>
       <excludedStates>FAULT</excludedStates>
+      <excludedStates>UNKNOWN</excludedStates>
     </commands>
     <commands name="Reset" description="Reset faults and alarms" execMethod="reset" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="">
@@ -63,6 +63,8 @@
         <type xsi:type="pogoDsl:VoidType"/>
       </argout>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <excludedStates>FAULT</excludedStates>
+      <excludedStates>UNKNOWN</excludedStates>
     </commands>
     <attributes name="Current" attType="Scalar" rwType="READ_WRITE" displayLevel="OPERATOR" polledPeriod="0" maxX="0" maxY="0" allocReadMember="false" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>
@@ -72,7 +74,9 @@
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
       <properties description="The DC current of the selected pole." label="DC Current" unit="A" standardUnit="" displayUnit="" format="%6.4f" maxValue="5.0" minValue="-5.0" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
       <readExcludedStates>FAULT</readExcludedStates>
+      <readExcludedStates>UNKNOWN</readExcludedStates>
       <writeExcludedStates>FAULT</writeExcludedStates>
+      <writeExcludedStates>UNKNOWN</writeExcludedStates>
     </attributes>
     <attributes name="Voltage" attType="Scalar" rwType="READ_WRITE" displayLevel="OPERATOR" polledPeriod="0" maxX="0" maxY="0" allocReadMember="false" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>
@@ -81,6 +85,10 @@
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
       <properties description="The measured voltage of the magnet. &#xA;The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current. " label="Voltage" unit="V" standardUnit="" displayUnit="" format="%6.4f" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <readExcludedStates>FAULT</readExcludedStates>
+      <readExcludedStates>UNKNOWN</readExcludedStates>
+      <writeExcludedStates>FAULT</writeExcludedStates>
+      <writeExcludedStates>UNKNOWN</writeExcludedStates>
     </attributes>
     <attributes name="Impedance" attType="Scalar" rwType="READ_WRITE" displayLevel="EXPERT" polledPeriod="0" maxX="0" maxY="0" allocReadMember="false" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>
@@ -105,7 +113,6 @@
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
       <properties description="" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
-      <readExcludedStates>FAULT</readExcludedStates>
     </attributes>
     <attributes name="MaxVoltage" attType="Scalar" rwType="READ" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>

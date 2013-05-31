@@ -64,7 +64,8 @@ bool DeltaController::is_Current_allowed(TANGO_UNUSED(Tango::AttReqType type))
 	if ( type!=Tango::READ_REQ )
 	{
 		if (	//	Compare device state with not allowed states for WRITE 
-			get_state() == Tango::FAULT)
+			get_state() == Tango::FAULT	|| 
+			get_state() == Tango::UNKNOWN)
 		{
 		
 	/*----- PROTECTED REGION ID(DeltaController::CurrentStateAllowed_WRITE) ENABLED START -----*/
@@ -77,7 +78,8 @@ bool DeltaController::is_Current_allowed(TANGO_UNUSED(Tango::AttReqType type))
 	}
 	else
 	if (	//	Compare device state with not allowed states for READ 
-		get_state() == Tango::FAULT)
+		get_state() == Tango::FAULT	|| 
+		get_state() == Tango::UNKNOWN)
 	{
 	
 	/*----- PROTECTED REGION ID(DeltaController::read_CurrentStateAllowed_READ) ENABLED START -----*/
@@ -101,21 +103,31 @@ bool DeltaController::is_Voltage_allowed(TANGO_UNUSED(Tango::AttReqType type))
 	//	Check if access type.
 	if ( type!=Tango::READ_REQ )
 	{
-			//	Not any excluded states for Voltage attribute in WRITE access.
+		if (	//	Compare device state with not allowed states for WRITE 
+			get_state() == Tango::FAULT	|| 
+			get_state() == Tango::UNKNOWN)
+		{
 		
 	/*----- PROTECTED REGION ID(DeltaController::VoltageStateAllowed_WRITE) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::VoltageStateAllowed_WRITE
 
+			return false;
+		}
 		return true;
 	}
 	else
-		//	Not any excluded states for Voltage attribute in READ access.
+	if (	//	Compare device state with not allowed states for READ 
+		get_state() == Tango::FAULT	|| 
+		get_state() == Tango::UNKNOWN)
+	{
 	
 	/*----- PROTECTED REGION ID(DeltaController::read_VoltageStateAllowed_READ) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::read_VoltageStateAllowed_READ
 
+		return false;
+	}
 	return true;
 }
 
@@ -188,16 +200,12 @@ bool DeltaController::is_Vlim_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 bool DeltaController::is_MaxCurrent_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	if (	//	Compare device state with not allowed states for READ 
-		get_state() == Tango::FAULT)
-	{
+		//	Not any excluded states for MaxCurrent attribute in READ access.
 	
 	/*----- PROTECTED REGION ID(DeltaController::read_MaxCurrentStateAllowed_READ) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::read_MaxCurrentStateAllowed_READ
 
-		return false;
-	}
 	return true;
 }
 
@@ -247,8 +255,8 @@ bool DeltaController::is_MaxVoltage_allowed(TANGO_UNUSED(Tango::AttReqType type)
 bool DeltaController::is_On_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	if (	//	Compare device state with not allowed states for command 
-		get_state() == Tango::ON	|| 
-		get_state() == Tango::FAULT)
+		get_state() == Tango::FAULT	|| 
+		get_state() == Tango::UNKNOWN)
 	{
 
 	/*----- PROTECTED REGION ID(DeltaController::OnStateAllowed) ENABLED START -----*/
@@ -270,8 +278,8 @@ bool DeltaController::is_On_allowed(TANGO_UNUSED(const CORBA::Any &any))
 bool DeltaController::is_Off_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
 	if (	//	Compare device state with not allowed states for command 
-		get_state() == Tango::OFF	|| 
-		get_state() == Tango::FAULT)
+		get_state() == Tango::FAULT	|| 
+		get_state() == Tango::UNKNOWN)
 	{
 
 	/*----- PROTECTED REGION ID(DeltaController::OffStateAllowed) ENABLED START -----*/
@@ -292,12 +300,17 @@ bool DeltaController::is_Off_allowed(TANGO_UNUSED(const CORBA::Any &any))
 
 bool DeltaController::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
 {
-	//	Not any excluded states for Reset command.
+	if (	//	Compare device state with not allowed states for command 
+		get_state() == Tango::FAULT	|| 
+		get_state() == Tango::UNKNOWN)
+	{
 
 	/*----- PROTECTED REGION ID(DeltaController::ResetStateAllowed) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::ResetStateAllowed
 
+		return false;
+	}
 	return true;
 }
 
