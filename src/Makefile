@@ -25,6 +25,8 @@
 MAKE_ENV = /usr/local/share/pogo/preferences
 #MAKE_ENV = /usr/share/pogo/preferences
 
+LIBDELTAPS_HOME = ../../lib-maxiv-deltaps
+
 #=============================================================================
 # PACKAGE_NAME is the name of the library/device/exe you want to build
 #
@@ -57,8 +59,7 @@ OUTPUT_TYPE = DEVICE
 #	- $HOME/DeviceServers if OUTPUT_TYPE is DEVICE
 #	- ../bin for others
 #
-OUTPUT_DIR = ./bin/$(BIN_DIR)
-
+OUTPUT_DIR = ../bin
 
 
 #=============================================================================
@@ -67,7 +68,7 @@ OUTPUT_DIR = ./bin/$(BIN_DIR)
 #   - '-I ../include' and '-I .' are automatically appended in all cases
 #
 #
-INC_DIR_USER= -I . -I ../../lib-maxiv-deltaps/src -I /usr/include/tango
+INC_DIR_USER= -I. -I$(TANGO_HOME)/include -I$(LIBDELTAPS_HOME)/src
 
 
 #=============================================================================
@@ -75,7 +76,7 @@ INC_DIR_USER= -I . -I ../../lib-maxiv-deltaps/src -I /usr/include/tango
 #   - for a device server, tango libraries directories are automatically appended
 #   - '-L ../lib' is automatically appended in all cases
 #
-LIB_DIR_USER=-L ../../lib-maxiv-deltaps/lib
+LIB_DIR_USER = -L$(LIBDELTAPS_HOME)/lib
 
 #=============================================================================
 # LFLAGS_USR is the list of user link flags
