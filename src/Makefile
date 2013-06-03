@@ -31,8 +31,8 @@ LIBDELTAPS_HOME = ../../lib-maxiv-deltaps
 # PACKAGE_NAME is the name of the library/device/exe you want to build
 #
 PACKAGE_NAME = DeltaController
-MAJOR_VERS   = 1
-MINOR_VERS   = 0
+MAJOR_VERS   = 0
+MINOR_VERS   = 1
 RELEASE      = Release_$(MAJOR_VERS)_$(MINOR_VERS)
 
 # #=============================================================================
