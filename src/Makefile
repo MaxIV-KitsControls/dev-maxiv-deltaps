@@ -89,8 +89,12 @@ LIB_DIR_USER = -L$(LIBDELTAPS_HOME)/lib
 # you must use '-lA -lB' in this order as link flags, otherwise you will get
 # 'undefined reference' errors
 #
-LFLAGS_USR+= -lDeltaPS -lyat
-
+LFLAGS_USR+= -lDeltaPS
+ifeq ($(RELEASE_TYPE), OPTIMIZED)
+LFLAGS_USR += -lyat
+else
+LFLAGS_USR += -lyatd
+endif
 
 #=============================================================================
 # CXXFLAGS_USR lists the compilation flags specific for your library/device/exe

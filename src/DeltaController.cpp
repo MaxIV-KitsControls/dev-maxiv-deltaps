@@ -558,6 +558,7 @@ void DeltaController::read_MaxCurrent(Tango::Attribute &attr)
 	DEBUG_STREAM << "DeltaController::read_MaxCurrent(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(DeltaController::read_MaxCurrent) ENABLED START -----*/
 
+        *attr_MaxCurrent_read = powersupply->get_max_current();
 	//	Set the attribute value
 	attr.set_value(attr_MaxCurrent_read);
 
@@ -578,6 +579,7 @@ void DeltaController::read_MaxVoltage(Tango::Attribute &attr)
 	DEBUG_STREAM << "DeltaController::read_MaxVoltage(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(DeltaController::read_MaxVoltage) ENABLED START -----*/
 
+        *attr_MaxVoltage_read = powersupply->get_max_voltage();
 	//	Set the attribute value
 	attr.set_value(attr_MaxVoltage_read);
 
