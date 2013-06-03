@@ -53,7 +53,6 @@ make -C src \
 
 %postun
 
-# main package includes libraries and copyright info
 %files
 %defattr (-,root,root,755)
 %{_bindir}/*
