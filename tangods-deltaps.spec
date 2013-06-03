@@ -8,7 +8,7 @@ Version: 	0.1.0
 # post-release
 # see http://fedoraproject.org/wiki/Packaging:NamingGuidelines#Non-Numeric_Version_in_Release
 # 
-Release:	1%{?snapshot}%{?dist}.maxlab
+Release:	2%{?snapshot}%{?dist}.maxlab
 License: 	GPL
 URL:		http://www.maxlab.lu.se
 Group:		System Environment/Daemons
@@ -19,6 +19,8 @@ BuildRequires: libdeltaps-devel
 BuildRequires: libtango8-devel
 # for pogo Makefile templates:
 BuildRequires: tango-java
+# todo: find out why this is needed: 
+AutoReqProv: no
 
 %description
 Tango device for power supplies from Delta Elektronika
@@ -57,5 +59,8 @@ make -C src \
 %{_bindir}/*
 
 %changelog
+* Mon Jun 03 2013 Andreas Persson <andreas_g.persson@maxlab.lu.se> 0.1.0-2.20130603git
+- disable AutoReqProv
+
 * Mon Jun 03 2013 Andreas Persson <andreas_g.persson@maxlab.lu.se> 0.1.0-1.20130603git
 - initial package
