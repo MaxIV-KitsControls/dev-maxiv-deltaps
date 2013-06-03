@@ -60,7 +60,7 @@ class DeltaController : public Tango::Device_4Impl
 	//		Add your own data members
 private:
     // Object handling ethernet communication to the power supply
-    PSC_ETH::PSC_ETH* powersupply;
+    PSC_ETH* powersupply;
     double vlim, impedance;
     bool isDeviceOn;
 

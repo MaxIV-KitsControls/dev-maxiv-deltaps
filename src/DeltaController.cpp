@@ -191,10 +191,10 @@ void DeltaController::init_device()
         if(this->groupNumber<1 || this->groupNumber>4){
             this->set_state(Tango::FAULT);
             this->set_status("Wrong groupNumber");
-            powersupply = new PSC_ETH::PSC_ETH(iPAddress, groupNumber);
+            powersupply = new PSC_ETH(iPAddress, groupNumber);
         }
         else{
-            powersupply = new PSC_ETH::PSC_ETH(iPAddress, groupNumber);
+            powersupply = new PSC_ETH(iPAddress, groupNumber);
             this->set_state(Tango::ON);
             this->set_status("Communication OK");
         }
