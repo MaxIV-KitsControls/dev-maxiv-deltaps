@@ -1,14 +1,14 @@
 
 # date of git snapshot
-%define snapshot .20130603git
+%define snapshot .20130610git
 
 Summary: 	Tango device for power supplies from Delta Elektronika
 Name:    	tangods-deltaps
-Version: 	0.1.0
+Version: 	0.2.0
 # post-release
 # see http://fedoraproject.org/wiki/Packaging:NamingGuidelines#Non-Numeric_Version_in_Release
 # 
-Release:	2%{?snapshot}%{?dist}.maxlab
+Release:	1%{?snapshot}%{?dist}.maxlab
 License: 	GPL
 URL:		http://www.maxlab.lu.se
 Group:		System Environment/Daemons
@@ -58,6 +58,12 @@ make -C src \
 %{_bindir}/*
 
 %changelog
+* Mon Jun 10 2013
+- Calculate tolerance as a percentage of the power supply max current. The percentage is a new property of the device.
+- Max source voltage is a new attribute. Default value is the factory setting max voltage.
+- SendCommand command added. Sends a generic SCPI command to the powersupply.
+- Added functionality to read attributes Max_voltage and Max_current.
+
 * Mon Jun 03 2013 Andreas Persson <andreas_g.persson@maxlab.lu.se> 0.1.0-2.20130603git
 - disable AutoReqProv
 

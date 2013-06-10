@@ -22,8 +22,7 @@
 #=============================================================================
 # MAKE_ENV is the path to find common environment to buil project
 #
-MAKE_ENV = /usr/local/share/pogo/preferences
-#MAKE_ENV = /usr/share/pogo/preferences
+MAKE_ENV = /usr/share/pogo/preferences
 
 LIBDELTAPS_HOME = ../../lib-maxiv-deltaps
 
@@ -32,7 +31,7 @@ LIBDELTAPS_HOME = ../../lib-maxiv-deltaps
 #
 PACKAGE_NAME = DeltaController
 MAJOR_VERS   = 0
-MINOR_VERS   = 1
+MINOR_VERS   = 2
 RELEASE      = Release_$(MAJOR_VERS)_$(MINOR_VERS)
 
 # #=============================================================================
