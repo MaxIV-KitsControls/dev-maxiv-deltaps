@@ -100,23 +100,6 @@ bool DeltaController::is_Current_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 bool DeltaController::is_Voltage_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-	//	Check if access type.
-	if ( type!=Tango::READ_REQ )
-	{
-		if (	//	Compare device state with not allowed states for WRITE 
-			get_state() == Tango::FAULT	|| 
-			get_state() == Tango::UNKNOWN)
-		{
-		
-	/*----- PROTECTED REGION ID(DeltaController::VoltageStateAllowed_WRITE) ENABLED START -----*/
-
-	/*----- PROTECTED REGION END -----*/	//	DeltaController::VoltageStateAllowed_WRITE
-
-			return false;
-		}
-		return true;
-	}
-	else
 	if (	//	Compare device state with not allowed states for READ 
 		get_state() == Tango::FAULT	|| 
 		get_state() == Tango::UNKNOWN)
@@ -200,12 +183,17 @@ bool DeltaController::is_Vlim_allowed(TANGO_UNUSED(Tango::AttReqType type))
 
 bool DeltaController::is_MaxCurrent_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-		//	Not any excluded states for MaxCurrent attribute in READ access.
+	if (	//	Compare device state with not allowed states for READ 
+		get_state() == Tango::FAULT	|| 
+		get_state() == Tango::UNKNOWN)
+	{
 	
 	/*----- PROTECTED REGION ID(DeltaController::read_MaxCurrentStateAllowed_READ) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::read_MaxCurrentStateAllowed_READ
 
+		return false;
+	}
 	return true;
 }
 
@@ -218,11 +206,46 @@ bool DeltaController::is_MaxCurrent_allowed(TANGO_UNUSED(Tango::AttReqType type)
 
 bool DeltaController::is_MaxVoltage_allowed(TANGO_UNUSED(Tango::AttReqType type))
 {
-		//	Not any excluded states for MaxVoltage attribute in READ access.
+	if (	//	Compare device state with not allowed states for READ 
+		get_state() == Tango::FAULT	|| 
+		get_state() == Tango::UNKNOWN)
+	{
 	
 	/*----- PROTECTED REGION ID(DeltaController::read_MaxVoltageStateAllowed_READ) ENABLED START -----*/
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::read_MaxVoltageStateAllowed_READ
+
+		return false;
+	}
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : DeltaController::is_MaxSourceVoltageState_allowed()
+ *	Description : Execution allowed for MaxSourceVoltage attribute.
+ */
+//--------------------------------------------------------
+
+bool DeltaController::is_MaxSourceVoltage_allowed(TANGO_UNUSED(Tango::AttReqType type))
+{
+	//	Check if access type.
+	if ( type!=Tango::READ_REQ )
+	{
+			//	Not any excluded states for MaxSourceVoltage attribute in WRITE access.
+		
+	/*----- PROTECTED REGION ID(DeltaController::MaxSourceVoltageStateAllowed_WRITE) ENABLED START -----*/
+
+	/*----- PROTECTED REGION END -----*/	//	DeltaController::MaxSourceVoltageStateAllowed_WRITE
+
+		return true;
+	}
+	else
+		//	Not any excluded states for MaxSourceVoltage attribute in READ access.
+	
+	/*----- PROTECTED REGION ID(DeltaController::read_MaxSourceVoltageStateAllowed_READ) ENABLED START -----*/
+
+	/*----- PROTECTED REGION END -----*/	//	DeltaController::read_MaxSourceVoltageStateAllowed_READ
 
 	return true;
 }
@@ -311,6 +334,24 @@ bool DeltaController::is_Reset_allowed(TANGO_UNUSED(const CORBA::Any &any))
 
 		return false;
 	}
+	return true;
+}
+
+//--------------------------------------------------------
+/**
+ *	Method      : DeltaController::is_SendCommandState_allowed()
+ *	Description : Execution allowed for SendCommand command.
+ */
+//--------------------------------------------------------
+
+bool DeltaController::is_SendCommand_allowed(TANGO_UNUSED(const CORBA::Any &any))
+{
+	//	Not any excluded states for SendCommand command.
+
+	/*----- PROTECTED REGION ID(DeltaController::SendCommandStateAllowed) ENABLED START -----*/
+
+	/*----- PROTECTED REGION END -----*/	//	DeltaController::SendCommandStateAllowed
+
 	return true;
 }
 

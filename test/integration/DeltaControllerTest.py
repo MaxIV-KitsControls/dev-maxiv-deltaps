@@ -13,24 +13,25 @@ class DeltaControllerTestCase(unittest.TestCase):
                       #},
                       { "DEVICE" : "test/delta/SM-15-100",
                         "IPAddress" : "130.235.95.233",
-                        "GROUPNUMBER" : 2
+                        "GROUPNUMBER" : 2,
+                        "ID" : "DELTA ELEKTRONIKA BV,PSC ETH P177 V3.7.0,10100476,0\n"
                         }, 
                       { "DEVICE" : "test/delta/ES-030-5",
                         "IPAddress" : "130.235.95.232",
-                        "GROUPNUMBER" : 1
+                        "GROUPNUMBER" : 1,
+                        "ID" : "DELTA ELEKTRONIKA BV,PSC ETH P150 V3.7.0,000010099951,0\n"
                       }] 
 
-    CURRENT_TOLERANCE = 0.01
+    CURRENT_TOLERANCE = 0.05
     
     def setUp(self):
         print "In method", self._testMethodName
         for ps in self.POWERSUPPLIES:
-        	print ps
+        	print ps["DEVICE"]
         	proxy = PyTango.DeviceProxy(ps["DEVICE"])
         	proxy.put_property({"IPAddress":ps["IPAddress"]})
         	proxy.put_property({"GroupNumber":ps["GROUPNUMBER"]})
         	proxy.init()
-        	proxy.Voltage = 10.0
         	ps["PROXY"]=proxy
 
     def tearDown(self):
@@ -222,6 +223,39 @@ class DeltaControllerTestCase(unittest.TestCase):
             for wrong in wrong_values :
                 "when:"
                 self.assertRaises(PyTango.DevFailed, lambda : device.write_attribute(attribute, wrong) )
+                
+    def testSendCommand(self):
+		for ps in self.POWERSUPPLIES:
+			device = ps["PROXY"]
+			expected = ps["ID"]
+			
+			"when: *idn? is sent"
+			actual = device.SendCommand("*idn?")
+			print actual
+			"then: receive id string"
+			self.assertEquals(expected, actual, "Did not recieve expected ID string : %s (expected : %s)" % (actual, expected))
+	
+    def testMaxSourceVoltage(self):
+		for ps in self.POWERSUPPLIES:
+			device = ps["PROXY"]
+			expected = 5
+			
+			"when: set max voltage"
+			device.MaxSourceVoltage = 5
+			
+			"then: check setvalue"
+			actual = device.MaxSourceVoltage
+			self.assertEquals(expected, actual, "The attribute was not set correctly : %s (expected : %s)" % (actual, expected))
+			
+    def testWrongMaxSourceVoltage(self):
+        attribute = "MaxSourceVoltage"
+        for ps in self.POWERSUPPLIES:
+            device = ps["PROXY"]
+            
+            wrong_values = [-10, 20]
+            for wrong in wrong_values :
+                "when:"
+                self.assertRaises(PyTango.DevFailed, lambda : device.write_attribute(attribute, wrong) )
 
 
     #def testVoltageAndImpedance(self):
@@ -286,6 +320,7 @@ class DeltaControllerTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     #suiteFew = unittest.TestSuite()
+    #suiteFew.addTest(DeltaControllerTestCase("testSendCommand"))
     #suiteFew.addTest(DeltaControllerTestCase("testInit"))
     #suiteFew.addTest(DeltaControllerTestCase("testWrongIP"))
     #suiteFew.addTest(DeltaControllerTestCase("testWrongGroup"))
@@ -295,5 +330,5 @@ if __name__ == '__main__':
     #suiteFew.addTest(DeltaControllerTestCase("testTwiceOn"))
     #suiteFew.addTest(DeltaControllerTestCase("testTwiceOff"))
     #unittest.TextTestRunner(verbosity=2).run(suiteFew)
-    unittest.TextTestRunner(verbosity=2).run(unittest.makeSuite(DeltaControllerTestCase))
+    unittest.TextTestRunner(verbosity=3).run(unittest.makeSuite(DeltaControllerTestCase))
 

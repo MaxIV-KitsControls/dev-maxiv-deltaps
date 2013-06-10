@@ -210,6 +210,25 @@ CORBA::Any *ResetClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CO
 	((static_cast<DeltaController *>(device))->reset());
 	return new CORBA::Any();
 }
+//--------------------------------------------------------
+/**
+ * method : 		SendCommandClass::execute()
+ * description : 	method to trigger the execution of the command.
+ *
+ * @param	device	The device on which the command must be executed
+ * @param	in_any	The command input data
+ *
+ *	returns The command output data (packed in the Any object)
+ */
+//--------------------------------------------------------
+CORBA::Any *SendCommandClass::execute(Tango::DeviceImpl *device, TANGO_UNUSED(const CORBA::Any &in_any))
+{
+	cout2 << "SendCommandClass::execute(): arrived" << endl;
+
+	Tango::DevString	argin;
+	extract(in_any, argin);
+	return insert((static_cast<DeltaController *>(device))->send_command(argin));
+}
 
 
 
@@ -318,6 +337,21 @@ void DeltaControllerClass::set_default_property()
 	prop_desc = "Delta power supply group number:  1 -  ES-series, SM700 series, SM3000 series  2 - SM800, SM1500, SM6000  3 - SM3300 series  4 - Combined power supplies";
 	prop_def  = "";
 	vect_data.clear();
+	if (prop_def.length()>0)
+	{
+		Tango::DbDatum	data(prop_name);
+		data << vect_data ;
+		dev_def_prop.push_back(data);
+		add_wiz_dev_prop(prop_name, prop_desc,  prop_def);
+	}
+	else
+		add_wiz_dev_prop(prop_name, prop_desc);
+
+	prop_name = "Tolerance";
+	prop_desc = "The current tolerance, a percentage of the maximum current.   Used to decide when the current has stabilized after a change.";
+	prop_def  = "1.0\n";
+	vect_data.clear();
+	vect_data.push_back("1.0");
 	if (prop_def.length()>0)
 	{
 		Tango::DbDatum	data(prop_name);
@@ -575,7 +609,7 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	Attribute : Voltage
 	VoltageAttrib	*voltage = new VoltageAttrib();
 	Tango::UserDefaultAttrProp	voltage_prop;
-	voltage_prop.set_description("The measured voltage of the magnet. \nThe Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current. ");
+	voltage_prop.set_description("The measured voltage of the magnet. \nThe Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current.");
 	voltage_prop.set_label("Voltage");
 	voltage_prop.set_unit("V");
 	//	standard_unit	not set for	Voltage
@@ -664,7 +698,7 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	maxcurrent_prop;
 	//	description	not set for	MaxCurrent
 	//	label	not set for	MaxCurrent
-	//	unit	not set for	MaxCurrent
+	maxcurrent_prop.set_unit("A");
 	//	standard_unit	not set for	MaxCurrent
 	//	display_unit	not set for	MaxCurrent
 	//	format	not set for	MaxCurrent
@@ -693,7 +727,7 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	Tango::UserDefaultAttrProp	maxvoltage_prop;
 	//	description	not set for	MaxVoltage
 	//	label	not set for	MaxVoltage
-	//	unit	not set for	MaxVoltage
+	maxvoltage_prop.set_unit("V");
 	//	standard_unit	not set for	MaxVoltage
 	//	display_unit	not set for	MaxVoltage
 	//	format	not set for	MaxVoltage
@@ -708,7 +742,7 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 
 	maxvoltage->set_default_properties(maxvoltage_prop);
 	maxvoltage->set_polling_period(0);
-	maxvoltage->set_disp_level(Tango::OPERATOR);
+	maxvoltage->set_disp_level(Tango::EXPERT);
 	//	Not memorized
 
 	//	MaxVoltage does not fire change event
@@ -716,6 +750,35 @@ void DeltaControllerClass::attribute_factory(vector<Tango::Attr *> &att_list)
 	//	MaxVoltage does not fire data_ready event
 
 	att_list.push_back(maxvoltage);
+	
+	//	Attribute : MaxSourceVoltage
+	MaxSourceVoltageAttrib	*maxsourcevoltage = new MaxSourceVoltageAttrib();
+	Tango::UserDefaultAttrProp	maxsourcevoltage_prop;
+	maxsourcevoltage_prop.set_description("Sets the maximum available output voltage. \nSeparate from the factory configured maxvoltage of the PS, ie it can be set to a lower value. \nThe default value is equal to the factory configured maxvoltage.");
+	//	label	not set for	MaxSourceVoltage
+	maxsourcevoltage_prop.set_unit("V");
+	//	standard_unit	not set for	MaxSourceVoltage
+	//	display_unit	not set for	MaxSourceVoltage
+	//	format	not set for	MaxSourceVoltage
+	maxsourcevoltage_prop.set_max_value("15");
+	maxsourcevoltage_prop.set_min_value("-1");
+	//	max_alarm	not set for	MaxSourceVoltage
+	//	min_alarm	not set for	MaxSourceVoltage
+	//	max_warning	not set for	MaxSourceVoltage
+	//	min_warning	not set for	MaxSourceVoltage
+	//	delta_t	not set for	MaxSourceVoltage
+	//	delta_val	not set for	MaxSourceVoltage
+
+	maxsourcevoltage->set_default_properties(maxsourcevoltage_prop);
+	maxsourcevoltage->set_polling_period(0);
+	maxsourcevoltage->set_disp_level(Tango::OPERATOR);
+	//	Not memorized
+
+	//	MaxSourceVoltage does not fire change event
+	//	MaxSourceVoltage does not fire archive event
+	//	MaxSourceVoltage does not fire data_ready event
+
+	att_list.push_back(maxsourcevoltage);
 	
 
 	//	Create a list of static attributes
@@ -776,6 +839,17 @@ void DeltaControllerClass::command_factory()
 			"",
 			Tango::OPERATOR);
 	command_list.push_back(pResetCmd);
+
+
+	
+	//	Create SendCommand command object
+	SendCommandClass	*pSendCommandCmd =
+		new SendCommandClass("SendCommand",
+			Tango::DEV_STRING, Tango::DEV_STRING,
+			"Example: Read status operation shutdown register. All commands must end with newline.\n\nstatus:operation:shutdown:condition?",
+			"",
+			Tango::EXPERT);
+	command_list.push_back(pSendCommandCmd);
 
 
 

@@ -61,7 +61,7 @@ class DeltaController : public Tango::Device_4Impl
 private:
     // Object handling ethernet communication to the power supply
     PSC_ETH* powersupply;
-    double vlim, impedance;
+    double vLim, impedance;
     bool isDeviceOn;
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::Data Members
@@ -77,6 +77,9 @@ public:		//	IPAddress:	IP Address of Delta power supply controller.
 	//	3 - SM3300 series
 	//	4 - Combined power supplies
 	Tango::DevShort	groupNumber;
+	//	Tolerance:	The current tolerance, a percentage of the maximum current. 
+	//	Used to decide when the current has stabilized after a change.
+	Tango::DevDouble	tolerance;
 	
 	bool	mandatoryNotDefined;
 	
@@ -88,6 +91,7 @@ public:
 	Tango::DevDouble	*attr_Vlim_read;
 	Tango::DevDouble	*attr_MaxCurrent_read;
 	Tango::DevDouble	*attr_MaxVoltage_read;
+	Tango::DevDouble	*attr_MaxSourceVoltage_read;
 
 
 
@@ -171,13 +175,12 @@ public:
 	/**
 	 *	Voltage attribute related methods.
 	 *	Description: The measured voltage of the magnet. 
-	 *             The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current. 
+	 *             The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current.
 	 *
 	 *	Data type:	Tango::DevDouble
 	 *	Attr type:	Scalar 
 	 */
 	virtual void read_Voltage(Tango::Attribute &attr);
-	virtual void write_Voltage(Tango::WAttribute &attr);
 	virtual bool is_Voltage_allowed(Tango::AttReqType type);
 
 
@@ -233,6 +236,21 @@ public:
 
 
 
+	/**
+	 *	MaxSourceVoltage attribute related methods.
+	 *	Description: Sets the maximum available output voltage. 
+	 *             Separate from the factory configured maxvoltage of the PS, ie it can be set to a lower value. 
+	 *             The default value is equal to the factory configured maxvoltage.
+	 *
+	 *	Data type:	Tango::DevDouble
+	 *	Attr type:	Scalar 
+	 */
+	virtual void read_MaxSourceVoltage(Tango::Attribute &attr);
+	virtual void write_MaxSourceVoltage(Tango::WAttribute &attr);
+	virtual bool is_MaxSourceVoltage_allowed(Tango::AttReqType type);
+
+
+
 
 	/**
 	 *	Method      : DeltaController::add_dynamic_attributes()
@@ -269,6 +287,12 @@ public:
 	 */
 	virtual void reset();
 	virtual bool is_Reset_allowed(const CORBA::Any &any);
+
+	/**
+	 *	Command SendCommand related methods.
+	 */
+	virtual Tango::DevString send_command(Tango::DevString argin);
+	virtual bool is_SendCommand_allowed(const CORBA::Any &any);
 
 
 

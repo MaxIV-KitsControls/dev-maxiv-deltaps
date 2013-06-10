@@ -4,7 +4,7 @@
     <description description="Device server to control all groups of Delta power supplies" title="Delta power supply" sourcePath="/mxn/home/mirlin/workspace/dev-maxiv-deltaps/src" language="Cpp" filestogenerate="XMI   file,Code files" hasMandatoryProperty="true" hasConcreteProperty="true" hasAbstractCommand="false" hasAbstractAttribute="false">
       <inheritances classname="Device_4Impl" sourcePath=""/>
       <identification contact="at maxlab.lu.se - kitscontrol" author="kitscontrol" emailDomain="maxlab.lu.se" classFamily="PowerSupply" siteSpecific="" platform="Unix Like" bus="Ethernet" manufacturer="Delta Elektronika" reference=""/>
-      <comments commandsTable="//================================================================&#xA;//&#xA;//  The following table gives the correspondence&#xA;//  between command and method names.&#xA;//&#xA;//  Command name  |  Method name&#xA;//----------------------------------------------------------------&#xA;//  State         |  dev_state&#xA;//  Status        |  dev_status&#xA;//  On            |  on&#xA;//  Off           |  off&#xA;//  Reset         |  reset&#xA;//================================================================"/>
+      <comments commandsTable="//================================================================&#xA;//&#xA;//  The following table gives the correspondence&#xA;//  between command and method names.&#xA;//&#xA;//  Command name  |  Method name&#xA;//----------------------------------------------------------------&#xA;//  State         |  dev_state&#xA;//  Status        |  dev_status&#xA;//  On            |  on&#xA;//  Off           |  off&#xA;//  Reset         |  reset&#xA;//  SendCommand   |  send_command&#xA;//================================================================"/>
     </description>
     <deviceProperties name="IPAddress" description="IP Address of Delta power supply controller.&#xA;The Delta power supplies only allow one active connection.">
       <type xsi:type="pogoDsl:StringType"/>
@@ -14,6 +14,11 @@
     <deviceProperties name="GroupNumber" mandatory="true" description="Delta power supply group number:&#xA;1 -  ES-series, SM700 series, SM3000 series&#xA;2 - SM800, SM1500, SM6000&#xA;3 - SM3300 series&#xA;4 - Combined power supplies">
       <type xsi:type="pogoDsl:ShortType"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </deviceProperties>
+    <deviceProperties name="Tolerance" description="The current tolerance, a percentage of the maximum current. &#xA;Used to decide when the current has stabilized after a change.">
+      <type xsi:type="pogoDsl:DoubleType"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <DefaultPropValue>1.0</DefaultPropValue>
     </deviceProperties>
     <commands name="State" description="This command gets the device state (stored in its &lt;i>device_state&lt;/i> data member) and returns it to the caller." execMethod="dev_state" displayLevel="OPERATOR" polledPeriod="0">
       <argin description="none.">
@@ -66,6 +71,15 @@
       <excludedStates>FAULT</excludedStates>
       <excludedStates>UNKNOWN</excludedStates>
     </commands>
+    <commands name="SendCommand" description="Send cleartext command using the SCPI protocol and the predefined commandset." execMethod="send_command" displayLevel="EXPERT" polledPeriod="0">
+      <argin description="Example: Read status operation shutdown register. All commands must end with newline.&#xA;&#xA;status:operation:shutdown:condition?">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argin>
+      <argout description="">
+        <type xsi:type="pogoDsl:StringType"/>
+      </argout>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+    </commands>
     <attributes name="Current" attType="Scalar" rwType="READ_WRITE" displayLevel="OPERATOR" polledPeriod="0" maxX="0" maxY="0" allocReadMember="false" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>
       <changeEvent fire="false" libCheckCriteria="false"/>
@@ -78,17 +92,15 @@
       <writeExcludedStates>FAULT</writeExcludedStates>
       <writeExcludedStates>UNKNOWN</writeExcludedStates>
     </attributes>
-    <attributes name="Voltage" attType="Scalar" rwType="READ_WRITE" displayLevel="OPERATOR" polledPeriod="0" maxX="0" maxY="0" allocReadMember="false" isDynamic="false">
+    <attributes name="Voltage" attType="Scalar" rwType="READ" displayLevel="OPERATOR" polledPeriod="0" maxX="0" maxY="0" allocReadMember="false" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>
       <changeEvent fire="false" libCheckCriteria="false"/>
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <properties description="The measured voltage of the magnet. &#xA;The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current. " label="Voltage" unit="V" standardUnit="" displayUnit="" format="%6.4f" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <properties description="The measured voltage of the magnet. &#xA;The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current." label="Voltage" unit="V" standardUnit="" displayUnit="" format="%6.4f" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
       <readExcludedStates>FAULT</readExcludedStates>
       <readExcludedStates>UNKNOWN</readExcludedStates>
-      <writeExcludedStates>FAULT</writeExcludedStates>
-      <writeExcludedStates>UNKNOWN</writeExcludedStates>
     </attributes>
     <attributes name="Impedance" attType="Scalar" rwType="READ_WRITE" displayLevel="EXPERT" polledPeriod="0" maxX="0" maxY="0" allocReadMember="false" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>
@@ -112,15 +124,27 @@
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <properties description="" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <properties description="" label="" unit="A" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <readExcludedStates>FAULT</readExcludedStates>
+      <readExcludedStates>UNKNOWN</readExcludedStates>
     </attributes>
-    <attributes name="MaxVoltage" attType="Scalar" rwType="READ" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
+    <attributes name="MaxVoltage" attType="Scalar" rwType="READ" displayLevel="EXPERT" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
       <dataType xsi:type="pogoDsl:DoubleType"/>
       <changeEvent fire="false" libCheckCriteria="false"/>
       <archiveEvent fire="false" libCheckCriteria="false"/>
       <dataReadyEvent fire="false" libCheckCriteria="true"/>
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
-      <properties description="" label="" unit="" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <properties description="" label="" unit="V" standardUnit="" displayUnit="" format="" maxValue="" minValue="" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
+      <readExcludedStates>FAULT</readExcludedStates>
+      <readExcludedStates>UNKNOWN</readExcludedStates>
+    </attributes>
+    <attributes name="MaxSourceVoltage" attType="Scalar" rwType="READ_WRITE" displayLevel="OPERATOR" polledPeriod="0" maxX="" maxY="" allocReadMember="true" isDynamic="false">
+      <dataType xsi:type="pogoDsl:DoubleType"/>
+      <changeEvent fire="false" libCheckCriteria="false"/>
+      <archiveEvent fire="false" libCheckCriteria="false"/>
+      <dataReadyEvent fire="false" libCheckCriteria="true"/>
+      <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>
+      <properties description="Sets the maximum available output voltage. &#xA;Separate from the factory configured maxvoltage of the PS, ie it can be set to a lower value. &#xA;The default value is equal to the factory configured maxvoltage." label="" unit="V" standardUnit="" displayUnit="" format="" maxValue="15" minValue="-1" maxAlarm="" minAlarm="" maxWarning="" minWarning="" deltaTime="" deltaValue=""/>
     </attributes>
     <states name="ON" description="Magnet is ON.">
       <status abstract="false" inherited="false" concrete="true" concreteHere="true"/>

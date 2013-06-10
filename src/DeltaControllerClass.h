@@ -69,13 +69,11 @@ class VoltageAttrib: public Tango::Attr
 {
 public:
 	VoltageAttrib():Attr("Voltage",
-	                   Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	                   Tango::DEV_DOUBLE, Tango::READ) {};
 	~VoltageAttrib() {};
 	
 	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
 		{(static_cast<DeltaController *>(dev))->read_Voltage(att);}
-	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
-		{(static_cast<DeltaController *>(dev))->write_Voltage(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<DeltaController *>(dev))->is_Voltage_allowed(ty);}
 };
@@ -138,6 +136,22 @@ public:
 		{(static_cast<DeltaController *>(dev))->read_MaxVoltage(att);}
 	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
 		{return (static_cast<DeltaController *>(dev))->is_MaxVoltage_allowed(ty);}
+};
+
+//	Attribute MaxSourceVoltage class definition
+class MaxSourceVoltageAttrib: public Tango::Attr
+{
+public:
+	MaxSourceVoltageAttrib():Attr("MaxSourceVoltage",
+	                   Tango::DEV_DOUBLE, Tango::READ_WRITE) {};
+	~MaxSourceVoltageAttrib() {};
+	
+	virtual void read(Tango::DeviceImpl *dev,Tango::Attribute &att)
+		{(static_cast<DeltaController *>(dev))->read_MaxSourceVoltage(att);}
+	virtual void write(Tango::DeviceImpl *dev,Tango::WAttribute &att)
+		{(static_cast<DeltaController *>(dev))->write_MaxSourceVoltage(att);}
+	virtual bool is_allowed(Tango::DeviceImpl *dev,Tango::AttReqType ty)
+		{return (static_cast<DeltaController *>(dev))->is_MaxSourceVoltage_allowed(ty);}
 };
 
 
@@ -215,6 +229,29 @@ public:
 	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
 	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
 	{return (static_cast<DeltaController *>(dev))->is_Reset_allowed(any);}
+};
+
+//	Command SendCommand class definition
+class SendCommandClass : public Tango::Command
+{
+public:
+	SendCommandClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out,
+				   const char        *in_desc,
+				   const char        *out_desc,
+				   Tango::DispLevel  level)
+	:Command(name,in,out,in_desc,out_desc, level)	{};
+
+	SendCommandClass(const char   *name,
+	               Tango::CmdArgType in,
+				   Tango::CmdArgType out)
+	:Command(name,in,out)	{};
+	~SendCommandClass() {};
+	
+	virtual CORBA::Any *execute (Tango::DeviceImpl *dev, const CORBA::Any &any);
+	virtual bool is_allowed (Tango::DeviceImpl *dev, const CORBA::Any &any)
+	{return (static_cast<DeltaController *>(dev))->is_SendCommand_allowed(any);}
 };
 
 

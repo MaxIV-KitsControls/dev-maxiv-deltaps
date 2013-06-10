@@ -54,6 +54,7 @@ static const char *RcsId = "$Id:  $";
 //  On            |  on
 //  Off           |  off
 //  Reset         |  reset
+//  SendCommand   |  send_command
 //================================================================
 //	Attributes managed are:
 //	Current:	
@@ -62,6 +63,7 @@ static const char *RcsId = "$Id:  $";
 //	Vlim:	
 //	MaxCurrent:	
 //	MaxVoltage:	
+//	MaxSourceVoltage:	
 
 
 
@@ -126,7 +128,7 @@ void DeltaController::delete_device()
 	/*----- PROTECTED REGION ID(DeltaController::delete_device) ENABLED START -----*/
 
     //	Delete device allocated objects
-    if (powersupply > 0)
+    if (powersupply > NULL)
     {
         delete powersupply;
     }
@@ -143,6 +145,7 @@ void DeltaController::delete_device()
     /*----- PROTECTED REGION END -----*/	//	DeltaController::delete_device
 	delete[] attr_MaxCurrent_read;
 	delete[] attr_MaxVoltage_read;
+	delete[] attr_MaxSourceVoltage_read;
 	
 	
 }
@@ -167,7 +170,7 @@ void DeltaController::init_device()
     attr_Impedance_read = new Tango::DevDouble();
     attr_Vlim_read = new Tango::DevDouble();
 
-    this->vlim = 0;
+    this->vLim = 0;
     this->impedance = 0;
 
     /*----- PROTECTED REGION END -----*/	//	DeltaController::init_device_before
@@ -179,6 +182,7 @@ void DeltaController::init_device()
 	
 	attr_MaxCurrent_read = new Tango::DevDouble[1];
 	attr_MaxVoltage_read = new Tango::DevDouble[1];
+	attr_MaxSourceVoltage_read = new Tango::DevDouble[1];
 	
 	/*----- PROTECTED REGION ID(DeltaController::init_device) ENABLED START -----*/
 
@@ -197,6 +201,14 @@ void DeltaController::init_device()
             powersupply = new PSC_ETH(iPAddress, groupNumber);
             this->set_state(Tango::ON);
             this->set_status("Communication OK");
+            
+            //set default voltage output (maxlevel)
+            double v = powersupply->get_max_voltage();
+            powersupply->set_voltage(v);
+            //set current tolerance from device property and PS max current
+            double max_i = powersupply->get_max_current();
+            powersupply->set_tolerance((this->tolerance/100)*max_i);
+            
         }
     }
     catch (const yat::Exception &e)
@@ -241,6 +253,7 @@ void DeltaController::get_device_property()
 	Tango::DbData	dev_prop;
 	dev_prop.push_back(Tango::DbDatum("IPAddress"));
 	dev_prop.push_back(Tango::DbDatum("GroupNumber"));
+	dev_prop.push_back(Tango::DbDatum("Tolerance"));
 
 	//	is there at least one property to be read ?
 	if (dev_prop.size()>0)
@@ -278,6 +291,17 @@ void DeltaController::get_device_property()
 		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  groupNumber;
 		//	Property GroupNumber is mandatory, check if has been defined in database.
 		check_mandatory_property(cl_prop, dev_prop[i]);
+
+		//	Try to initialize Tolerance from class property
+		cl_prop = ds_class->get_class_property(dev_prop[++i].name);
+		if (cl_prop.is_empty()==false)	cl_prop  >>  tolerance;
+		else {
+			//	Try to initialize Tolerance from default device value
+			def_prop = ds_class->get_default_device_property(dev_prop[i].name);
+			if (def_prop.is_empty()==false)	def_prop  >>  tolerance;
+		}
+		//	And try to extract Tolerance value from database
+		if (dev_prop[i].is_empty()==false)	dev_prop[i]  >>  tolerance;
 
 
 	}
@@ -415,7 +439,7 @@ void DeltaController::write_Current(Tango::WAttribute &attr)
 /**
  *	Read Voltage attribute
  *	Description: The measured voltage of the magnet. 
- *	             The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current. 
+ *	             The Delta power supplies operate in voltage mode which means that an output voltage must be set before setting the output current.
  *
  *	Data type:	Tango::DevDouble
  *	Attr type:	Scalar 
@@ -431,29 +455,6 @@ void DeltaController::read_Voltage(Tango::Attribute &attr)
     attr.set_value(attr_Voltage_read);
 
     /*----- PROTECTED REGION END -----*/	//	DeltaController::read_Voltage
-}
-	
-//--------------------------------------------------------
-/**
- *	Write Voltage attribute values to hardware.
- *
- *	Data type:	Tango::DevDouble
- *	Attr type:	Scalar 
- */
-//--------------------------------------------------------	
-void DeltaController::write_Voltage(Tango::WAttribute &attr)
-{
-	DEBUG_STREAM << "DeltaController::write_Voltage(Tango::Attribute &attr) entering... " << endl;
-	
-	//	Retrieve write value
-	Tango::DevDouble	w_val;
-	attr.get_write_value(w_val);
-	
-	/*----- PROTECTED REGION ID(DeltaController::write_Voltage) ENABLED START -----*/
-
-    powersupply->set_voltage(w_val);
-
-    /*----- PROTECTED REGION END -----*/	//	DeltaController::write_Voltage
 }
 
 //--------------------------------------------------------
@@ -514,7 +515,7 @@ void DeltaController::read_Vlim(Tango::Attribute &attr)
 {
 	DEBUG_STREAM << "DeltaController::read_Vlim(Tango::Attribute &attr) entering... " << endl;
 	/*----- PROTECTED REGION ID(DeltaController::read_Vlim) ENABLED START -----*/
-    *attr_Vlim_read = this->vlim;
+    *attr_Vlim_read = this->vLim;
     //	Set the attribute value
     attr.set_value(attr_Vlim_read);
 
@@ -539,7 +540,7 @@ void DeltaController::write_Vlim(Tango::WAttribute &attr)
 	
 	/*----- PROTECTED REGION ID(DeltaController::write_Vlim) ENABLED START -----*/
 
-    this->vlim = w_val;
+    this->vLim = w_val;
 
     /*----- PROTECTED REGION END -----*/	//	DeltaController::write_Vlim
 }
@@ -584,6 +585,54 @@ void DeltaController::read_MaxVoltage(Tango::Attribute &attr)
 	attr.set_value(attr_MaxVoltage_read);
 
 	/*----- PROTECTED REGION END -----*/	//	DeltaController::read_MaxVoltage
+}
+
+//--------------------------------------------------------
+/**
+ *	Read MaxSourceVoltage attribute
+ *	Description: Sets the maximum available output voltage. 
+ *	             Separate from the factory configured maxvoltage of the PS, ie it can be set to a lower value. 
+ *	             The default value is equal to the factory configured maxvoltage.
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar 
+ */
+//--------------------------------------------------------
+void DeltaController::read_MaxSourceVoltage(Tango::Attribute &attr)
+{
+	DEBUG_STREAM << "DeltaController::read_MaxSourceVoltage(Tango::Attribute &attr) entering... " << endl;
+	/*----- PROTECTED REGION ID(DeltaController::read_MaxSourceVoltage) ENABLED START -----*/
+
+	//	Set the attribute value
+	attr.set_value(attr_MaxSourceVoltage_read);
+        *attr_MaxSourceVoltage_read = powersupply->get_source_voltage();
+	//	Set the attribute value
+	attr.set_value(attr_MaxSourceVoltage_read);
+
+	/*----- PROTECTED REGION END -----*/	//	DeltaController::read_MaxSourceVoltage
+}
+	
+//--------------------------------------------------------
+/**
+ *	Write MaxSourceVoltage attribute values to hardware.
+ *
+ *	Data type:	Tango::DevDouble
+ *	Attr type:	Scalar 
+ */
+//--------------------------------------------------------	
+void DeltaController::write_MaxSourceVoltage(Tango::WAttribute &attr)
+{
+	DEBUG_STREAM << "DeltaController::write_MaxSourceVoltage(Tango::Attribute &attr) entering... " << endl;
+	
+	//	Retrieve write value
+	Tango::DevDouble	w_val;
+	attr.get_write_value(w_val);
+	
+	/*----- PROTECTED REGION ID(DeltaController::write_MaxSourceVoltage) ENABLED START -----*/
+
+	powersupply->set_voltage(w_val);
+
+	/*----- PROTECTED REGION END -----*/	//	DeltaController::write_MaxSourceVoltage
 }
 
 
@@ -771,10 +820,45 @@ void DeltaController::reset()
 
 }
 
+//--------------------------------------------------------
+/**
+ *	Execute the SendCommand command:
+ *	Description: Send cleartext command using the SCPI protocol and the predefined commandset.
+ *
+ *	@param argin Example: Read status operation shutdown register. All commands must end with newline.
+ *	             
+ *	             status:operation:shutdown:condition?
+ *	@returns 
+ */
+//--------------------------------------------------------
+Tango::DevString DeltaController::send_command(Tango::DevString argin)
+{
+	Tango::DevString argout;
+	DEBUG_STREAM << "DeltaController::SendCommand()  - " << device_name << endl;
+	/*----- PROTECTED REGION ID(DeltaController::send_command) ENABLED START -----*/
+        DEBUG_STREAM << "DeltaController::SendCommand()  - arg = " << argin << endl;
+        
+        string in(argin);
+	try{
+                string out = powersupply->send_query(in);
+                argout = CORBA::string_dup(out.c_str());
+        }catch(const yat::Exception &e){
+            Tango::Except::throw_exception(e.errors[0].reason, e.errors[0].desc, e.errors[0].origin, Tango::ErrSeverity::WARN);
+        }catch(...){
+            DEBUG_STREAM << "DeltaController::SendCommand()  - Caught unknown exception" << endl;
+            Tango::Except::throw_exception("Unknown exception", "-", "DeltaController::SendCommand()", Tango::ErrSeverity::WARN);
+        }
+               
+	/*----- PROTECTED REGION END -----*/	//	DeltaController::send_command
+
+	return argout;
+}
+
 
 	/*----- PROTECTED REGION ID(DeltaController::namespace_ending) ENABLED START -----*/
 
 //	Additional Methods
+
 
 
 /*----- PROTECTED REGION END -----*/	//	DeltaController::namespace_ending
