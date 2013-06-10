@@ -58,7 +58,7 @@ make -C src \
 %{_bindir}/*
 
 %changelog
-* Mon Jun 10 2013
+* Mon Jun 10 2013 Mirjam Lindberg <mirjam.lindberg@maxlab.lu.se> 0.2.0-1.20130610git
 - Calculate tolerance as a percentage of the power supply max current. The percentage is a new property of the device.
 - Max source voltage is a new attribute. Default value is the factory setting max voltage.
 - SendCommand command added. Sends a generic SCPI command to the powersupply.

@@ -207,7 +207,8 @@ void DeltaController::init_device()
             powersupply->set_voltage(v);
             //set current tolerance from device property and PS max current
             double max_i = powersupply->get_max_current();
-            powersupply->set_tolerance((this->tolerance/100)*max_i);
+            double tol = (this->tolerance/100)*max_i;
+            powersupply->set_tolerance(tol);
             
         }
     }
