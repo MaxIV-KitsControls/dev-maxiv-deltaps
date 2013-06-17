@@ -1,4 +1,5 @@
 import PyTango
+from PyTango_utils.tango import get_quality
 from symbol import try_stmt
 import unittest
 import time
@@ -256,6 +257,58 @@ class DeltaControllerTestCase(unittest.TestCase):
             for wrong in wrong_values :
                 "when:"
                 self.assertRaises(PyTango.DevFailed, lambda : device.write_attribute(attribute, wrong) )
+
+    # Test if the power supply has the capability to be interlocked
+    def testInterlockable(self):
+       for ps in self.POWERSUPPLIES:
+          device = ps["PROXY"]
+          actual = device.read_attribute("Interlocked").get_quality()
+          if device.Interlockable :
+             self.assertNotEquals(actual, PyTango.AttrQuality.ATTR_INVALID, "The quality of the attribut Interlocked is not expected for this group of PowerSupplies (%s)" % actual)
+          else:
+             self.assertEquals(actual, PyTango.AttrQuality.ATTR_INVALID, "The quality of the attribut Interlocked is not expected for this group of PowerSupplies (%s)" % actual)
+    
+
+    # Not only test the boolean value of the interlock but also the state
+    def testInterlocked(self):
+       expected = PyTango.DevState.ALARM
+       for ps in self.POWERSUPPLIES:
+          device = ps["PROXY"]
+          if device.InterLockable: #and device.Interlocked:
+             "setup:"
+             #Initial state == no interlock
+             #initial_state = device.state()
+             "when:"
+             #Force Interlock 
+             # How ???
+             "then:"
+             self.assertTrue(device.Interlocked, "Device should be interlocked for this test")
+             actual = device.state()
+             self.assertEquals(actual, expected, "If Interlocked, the state should be %s instead of %s" % (expected, actual))
+
+
+    # Not only test the boolean value of the interlock but also the state
+    def testNotInterlocked(self):
+       not_expected = PyTango.DevState.ALARM
+       for ps in self.POWERSUPPLIES:
+          device = ps["PROXY"]
+          if device.InterLockable : #and device.Interlocked:
+
+             "setup:"
+             #Initial state == no interlock
+             #initial_state = device.state()
+             "when:"
+             #Force Interlock 
+             # How ???
+             "then:"
+             self.assertFalse(device.Interlocked, "Device should not be interlocked for this test")
+             actual = device.state()
+             self.assertNotEquals(actual, not_expected, "If not Interlocked, the state should be everything but %s instead of %s" % (not_expected, actual))
+
+
+
+
+   
 
 
     #def testVoltageAndImpedance(self):
